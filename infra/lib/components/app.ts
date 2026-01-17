@@ -10,6 +10,7 @@ import * as secretsmanager from "aws-cdk-lib/aws-secretsmanager";
 import * as rds from "aws-cdk-lib/aws-rds";
 import * as s3 from "aws-cdk-lib/aws-s3";
 import * as sqs from "aws-cdk-lib/aws-sqs";
+import * as path from "path";
 
 interface AppComponentProps {
   vpc: ec2.IVpc;
@@ -142,13 +143,16 @@ export class AppComponent extends Construct {
       })
     );
 
-    this.apiLambda = new lambda.Function(this, "ApiLambda", {
+    this.apiLambda = new lambda.DockerImageFunction(this, "ApiLambda", {
       functionName: `cornellnote-${props.envName}-api`,
-      runtime: lambda.Runtime.JAVA_21,
+      code: lambda.DockerImageCode.fromImageAsset(
+        path.join(__dirname, "../../.."),
+        {
+          file: "Dockerfile.lambda",
+        }
+      ),
       memorySize: 2048,
       timeout: cdk.Duration.seconds(30),
-      handler: "not.used",
-      code: lambda.Code.fromAsset("../build/app.zip"),
       vpc: props.vpc,
       securityGroups: [props.appSecurityGroup],
       logGroup: apiLogGroup,
@@ -218,7 +222,7 @@ export class AppComponent extends Construct {
     NagSuppressions.addResourceSuppressions(this.apiLambda, [
       {
         id: "AwsSolutions-L1",
-        reason: "Java 21を利用するためランタイムを固定",
+        reason: "Lambda Web Adapterを利用するコンテナランタイムのため",
       },
     ]);
 
