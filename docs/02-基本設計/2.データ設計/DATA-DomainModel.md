@@ -13,6 +13,7 @@
 - ID: すべてUUID/ULIDなど推測困難なIDを採用
 - timestamps: createdAt/updatedAt を保持
 - 論理削除: deletedAt を持ち、FR-ACCOUNT-001/NFR-PRC-003と整合
+- Tag: 同一ユーザー内で同名タグは作成不可（userId + name を一意制約）
 
 ## リレーション概要
 - User 1..* Notebook

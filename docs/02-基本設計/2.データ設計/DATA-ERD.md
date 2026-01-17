@@ -46,6 +46,7 @@ erDiagram
     datetime createdAt
     datetime updatedAt
   }
+  %% TAG: UNIQUE(userId, name)
   NOTE_TAG {
     string noteId PK, FK
     string tagId PK, FK
@@ -79,3 +80,4 @@ erDiagram
 - contentRef/summaryRef/cueRef はObject Storage参照
 - errorMessageは失敗時のみ保存
 - NOTE_TAG は noteId + tagId の一意制約を持つ
+- TAG は userId + name の一意制約を持つ（同一ユーザー内で同名タグは不可）
