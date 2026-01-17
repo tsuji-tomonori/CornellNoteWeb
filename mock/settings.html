@@ -7,15 +7,16 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+  <a href="#mainContent" class="skip-link">本文へスキップ</a>
   <div class="app-container">
     <!-- Header -->
     <header class="header">
       <a href="notes.html" class="header-logo">Cornell Note</a>
       <div class="header-actions" style="margin-left: auto;">
-        <div class="header-user" id="userMenu">
+        <button type="button" class="header-user" id="userMenu" aria-haspopup="true" aria-expanded="false" aria-controls="userDropdown" aria-label="ユーザーメニュー">
           <div class="user-avatar" id="userAvatar">D</div>
           <span id="userName">Demo User</span>
-        </div>
+        </button>
       </div>
     </header>
 
@@ -49,7 +50,7 @@
     </aside>
 
     <!-- Main Content -->
-    <main class="main-content">
+    <main class="main-content" id="mainContent" tabindex="-1">
       <div class="settings-container">
         <h1 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 24px;">設定</h1>
 
@@ -60,12 +61,12 @@
           <form id="profileForm">
             <div class="form-group">
               <label class="form-label" for="displayName">表示名</label>
-              <input type="text" id="displayName" class="form-input" placeholder="表示名を入力">
+              <input type="text" id="displayName" class="form-input" placeholder="表示名を入力" autocomplete="name">
             </div>
 
             <div class="form-group">
               <label class="form-label" for="email">メールアドレス</label>
-              <input type="email" id="email" class="form-input" readonly style="background: var(--background-color);">
+              <input type="email" id="email" class="form-input" readonly style="background: var(--background-color);" autocomplete="email">
             </div>
 
             <button type="submit" class="btn btn-primary">変更を保存</button>
@@ -79,17 +80,17 @@
           <form id="passwordForm">
             <div class="form-group">
               <label class="form-label" for="currentPassword">現在のパスワード</label>
-              <input type="password" id="currentPassword" class="form-input" placeholder="現在のパスワード">
+              <input type="password" id="currentPassword" class="form-input" placeholder="現在のパスワード" autocomplete="current-password">
             </div>
 
             <div class="form-group">
               <label class="form-label" for="newPassword">新しいパスワード</label>
-              <input type="password" id="newPassword" class="form-input" placeholder="新しいパスワード（8文字以上）">
+              <input type="password" id="newPassword" class="form-input" placeholder="新しいパスワード（8文字以上）" autocomplete="new-password">
             </div>
 
             <div class="form-group">
               <label class="form-label" for="confirmPassword">新しいパスワード（確認）</label>
-              <input type="password" id="confirmPassword" class="form-input" placeholder="新しいパスワードを再入力">
+              <input type="password" id="confirmPassword" class="form-input" placeholder="新しいパスワードを再入力" autocomplete="new-password">
             </div>
 
             <button type="submit" class="btn btn-primary">パスワードを変更</button>
@@ -112,10 +113,13 @@
     </main>
   </div>
 
+  <div id="statusRegion" class="visually-hidden" role="status" aria-live="polite"></div>
+  <div id="alertRegion" class="visually-hidden" role="alert" aria-live="assertive"></div>
+
   <!-- Delete Account Modal -->
-  <div id="deleteAccountModal" class="modal-overlay hidden">
-    <div class="modal">
-      <h3 class="modal-title" style="color: var(--error-color);">アカウントを削除しますか？</h3>
+  <div id="deleteAccountModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="deleteAccountModalTitle">
+    <div class="modal" tabindex="-1">
+      <h3 class="modal-title" id="deleteAccountModalTitle" style="color: var(--error-color);">アカウントを削除しますか？</h3>
       <div class="modal-body">
         <p style="margin-bottom: 16px;">この操作を実行すると、以下のデータが完全に削除されます：</p>
         <ul style="margin-left: 20px; margin-bottom: 16px; color: var(--text-secondary);">
@@ -125,6 +129,7 @@
           <li>アカウント情報</li>
         </ul>
         <p style="font-weight: 500;">確認のため、「削除する」と入力してください：</p>
+        <label class="visually-hidden" for="deleteConfirmInput">削除確認入力</label>
         <input type="text" id="deleteConfirmInput" class="form-input" placeholder="削除する" style="margin-top: 8px;">
       </div>
       <div class="modal-actions">
@@ -132,6 +137,12 @@
         <button class="btn btn-danger" id="confirmDeleteAccount" disabled>アカウントを削除</button>
       </div>
     </div>
+  </div>
+
+  <!-- User Menu Dropdown -->
+  <div id="userDropdown" class="hidden" role="menu" aria-label="ユーザーメニュー" style="position: fixed; background: white; border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); padding: 8px 0; min-width: 160px; z-index: 150;">
+    <a href="settings.html" role="menuitem" style="display: block; padding: 8px 16px; color: var(--text-primary); text-decoration: none; font-size: 0.875rem;">設定</a>
+    <a href="#" id="dropdownLogout" role="menuitem" style="display: block; padding: 8px 16px; color: var(--error-color); text-decoration: none; font-size: 0.875rem;">ログアウト</a>
   </div>
 
   <script src="js/app.js"></script>
@@ -172,6 +183,7 @@
         storage.setSession(session);
 
         ui.showToast('プロフィールを更新しました', 'success');
+        ui.announceStatus('プロフィールを更新しました');
         loadUserInfo();
       });
 
@@ -183,33 +195,39 @@
         const confirmPassword = document.getElementById('confirmPassword').value;
 
         if (!currentPassword || !newPassword || !confirmPassword) {
-          ui.showToast('すべての項目を入力してください', 'error');
-          return;
-        }
+        ui.showToast('すべての項目を入力してください', 'error');
+        ui.announceStatus('パスワード変更: 必須項目が不足しています', 'alert');
+        return;
+      }
 
-        if (newPassword.length < 8) {
-          ui.showToast('パスワードは8文字以上で入力してください', 'error');
-          return;
-        }
+      if (newPassword.length < 8) {
+        ui.showToast('パスワードは8文字以上で入力してください', 'error');
+        ui.announceStatus('パスワード変更: 8文字以上で入力してください', 'alert');
+        return;
+      }
 
-        if (newPassword !== confirmPassword) {
-          ui.showToast('新しいパスワードが一致しません', 'error');
-          return;
-        }
+      if (newPassword !== confirmPassword) {
+        ui.showToast('新しいパスワードが一致しません', 'error');
+        ui.announceStatus('パスワード変更: 新しいパスワードが一致しません', 'alert');
+        return;
+      }
 
-        ui.showToast('パスワードを変更しました', 'success');
-        document.getElementById('passwordForm').reset();
-      });
+      ui.showToast('パスワードを変更しました', 'success');
+      ui.announceStatus('パスワードを変更しました');
+      document.getElementById('passwordForm').reset();
+    });
+
+      const deleteAccountModal = document.getElementById('deleteAccountModal');
 
       // Delete account
       document.getElementById('deleteAccountBtn').addEventListener('click', () => {
-        document.getElementById('deleteAccountModal').classList.remove('hidden');
+        ui.openModal(deleteAccountModal, document.getElementById('deleteConfirmInput'));
         document.getElementById('deleteConfirmInput').value = '';
         document.getElementById('confirmDeleteAccount').disabled = true;
       });
 
       document.getElementById('cancelDeleteAccount').addEventListener('click', () => {
-        document.getElementById('deleteAccountModal').classList.add('hidden');
+        ui.closeModal(deleteAccountModal);
       });
 
       document.getElementById('deleteConfirmInput').addEventListener('input', (e) => {
@@ -219,13 +237,14 @@
       document.getElementById('confirmDeleteAccount').addEventListener('click', () => {
         storage.clearSession();
         ui.showToast('アカウントを削除しました', 'success');
+        ui.announceStatus('アカウントを削除しました');
         setTimeout(() => navigateTo('login.html'), 1000);
       });
 
       // Modal overlay click to close
       document.getElementById('deleteAccountModal').addEventListener('click', (e) => {
         if (e.target.id === 'deleteAccountModal') {
-          document.getElementById('deleteAccountModal').classList.add('hidden');
+          ui.closeModal(deleteAccountModal);
         }
       });
 
@@ -235,9 +254,41 @@
         logout();
       });
 
+      document.getElementById('dropdownLogout').addEventListener('click', (e) => {
+        e.preventDefault();
+        logout();
+      });
+
+      // User menu
+      const userMenu = document.getElementById('userMenu');
+      const userDropdown = document.getElementById('userDropdown');
+
+      userMenu.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const rect = userMenu.getBoundingClientRect();
+        userDropdown.style.top = `${rect.bottom + 8}px`;
+        userDropdown.style.right = `${window.innerWidth - rect.right}px`;
+        const isHidden = userDropdown.classList.toggle('hidden');
+        userMenu.setAttribute('aria-expanded', (!isHidden).toString());
+        if (!isHidden) {
+          userDropdown.querySelector('a')?.focus();
+        }
+      });
+
+      userMenu.addEventListener('keydown', (e) => {
+        if (e.key !== 'Enter' && e.key !== ' ') return;
+        e.preventDefault();
+        userMenu.click();
+      });
+
+      document.addEventListener('click', () => {
+        userDropdown.classList.add('hidden');
+        userMenu.setAttribute('aria-expanded', 'false');
+      });
+
       // Settings navigation
       document.querySelectorAll('.sidebar-item[href^="#"]').forEach(item => {
-        item.addEventListener('click', (e) => {
+        item.addEventListener('click', () => {
           document.querySelectorAll('.sidebar-item[href^="#"]').forEach(i => i.classList.remove('active'));
           item.classList.add('active');
         });

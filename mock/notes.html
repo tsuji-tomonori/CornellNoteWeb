@@ -7,19 +7,21 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+  <a href="#mainContent" class="skip-link">本文へスキップ</a>
   <div class="app-container">
     <!-- Header -->
     <header class="header">
       <a href="notes.html" class="header-logo">Cornell Note</a>
-      <div class="header-search">
-        <input type="text" placeholder="ノートを検索..." id="searchInput">
-      </div>
-      <div class="header-actions">
-        <div class="header-user" id="userMenu">
-          <div class="user-avatar" id="userAvatar">D</div>
-          <span id="userName">Demo User</span>
-        </div>
-      </div>
+      <form class="header-search" role="search">
+        <label class="visually-hidden" for="searchInput">ノートを検索</label>
+        <input type="text" placeholder="ノートを検索..." id="searchInput" autocomplete="off">
+      </form>
+<div class="header-actions">
+  <button type="button" class="header-user" id="userMenu" aria-haspopup="true" aria-expanded="false" aria-controls="userDropdown" aria-label="ユーザーメニュー">
+    <div class="user-avatar" id="userAvatar">D</div>
+    <span id="userName">Demo User</span>
+  </button>
+</div>
     </header>
 
     <!-- Sidebar -->
@@ -53,7 +55,7 @@
     </aside>
 
     <!-- Main Content -->
-    <main class="main-content">
+    <main class="main-content" id="mainContent" tabindex="-1">
       <div class="note-list-header">
         <h1 class="note-list-title" id="pageTitle">すべてのノート</h1>
         <div>
@@ -73,10 +75,13 @@
   </div>
 
   <!-- User Menu Dropdown -->
-  <div id="userDropdown" class="hidden" style="position: fixed; background: white; border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); padding: 8px 0; min-width: 160px; z-index: 150;">
-    <a href="settings.html" style="display: block; padding: 8px 16px; color: var(--text-primary); text-decoration: none; font-size: 0.875rem;">設定</a>
-    <a href="#" id="dropdownLogout" style="display: block; padding: 8px 16px; color: var(--error-color); text-decoration: none; font-size: 0.875rem;">ログアウト</a>
+  <div id="userDropdown" class="hidden" role="menu" aria-label="ユーザーメニュー" style="position: fixed; background: white; border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); padding: 8px 0; min-width: 160px; z-index: 150;">
+    <a href="settings.html" role="menuitem" style="display: block; padding: 8px 16px; color: var(--text-primary); text-decoration: none; font-size: 0.875rem;">設定</a>
+    <a href="#" id="dropdownLogout" role="menuitem" style="display: block; padding: 8px 16px; color: var(--error-color); text-decoration: none; font-size: 0.875rem;">ログアウト</a>
   </div>
+
+  <div id="statusRegion" class="visually-hidden" role="status" aria-live="polite"></div>
+  <div id="alertRegion" class="visually-hidden" role="alert" aria-live="assertive"></div>
 
   <script src="js/app.js"></script>
   <script>
@@ -162,15 +167,17 @@
         }
 
         noteCount.textContent = `${notes.length} 件`;
+        ui.announceStatus(`${notes.length} 件のノートを表示しています`);
 
         if (notes.length === 0) {
           grid.classList.add('hidden');
           emptyState.classList.remove('hidden');
+          ui.announceStatus('表示できるノートがありません');
         } else {
           grid.classList.remove('hidden');
           emptyState.classList.add('hidden');
           grid.innerHTML = notes.map(note => `
-            <div class="note-card" data-note-id="${note.noteId}">
+            <button type="button" class="note-card" data-note-id="${note.noteId}" aria-label="${note.title} を開く">
               <div class="note-card-title">${note.title}</div>
               <div class="note-card-preview">${note.preview}</div>
               <div class="note-card-meta">
@@ -181,13 +188,14 @@
                   ${note.tags.map(tag => `<span class="tag">${tag.name}</span>`).join('')}
                 </div>
               ` : ''}
-            </div>
+            </button>
           `).join('');
         }
       } else {
         grid.classList.add('hidden');
         emptyState.classList.remove('hidden');
         noteCount.textContent = '0 件';
+        ui.announceStatus('ノートが見つかりません');
       }
     }
 
@@ -202,6 +210,16 @@
       document.getElementById('noteGrid').addEventListener('click', (e) => {
         const card = e.target.closest('.note-card');
         if (card) {
+          const noteId = card.dataset.noteId;
+          navigateTo('editor.html', { id: noteId.replace('note-', '') });
+        }
+      });
+
+      document.getElementById('noteGrid').addEventListener('keydown', (e) => {
+        if (e.key !== 'Enter' && e.key !== ' ') return;
+        const card = e.target.closest('.note-card');
+        if (card) {
+          e.preventDefault();
           const noteId = card.dataset.noteId;
           navigateTo('editor.html', { id: noteId.replace('note-', '') });
         }
@@ -233,6 +251,14 @@
             loadNotes({ type: 'tag', id: filterId });
           }
         });
+
+        container.addEventListener('keydown', (e) => {
+          if (e.key !== 'Enter' && e.key !== ' ') return;
+          const item = e.target.closest('.sidebar-item');
+          if (!item) return;
+          e.preventDefault();
+          item.click();
+        });
       });
 
       // User menu
@@ -244,11 +270,22 @@
         const rect = userMenu.getBoundingClientRect();
         userDropdown.style.top = `${rect.bottom + 8}px`;
         userDropdown.style.right = `${window.innerWidth - rect.right}px`;
-        userDropdown.classList.toggle('hidden');
+        const isHidden = userDropdown.classList.toggle('hidden');
+        userMenu.setAttribute('aria-expanded', (!isHidden).toString());
+        if (!isHidden) {
+          userDropdown.querySelector('a')?.focus();
+        }
+      });
+
+      userMenu.addEventListener('keydown', (e) => {
+        if (e.key !== 'Enter' && e.key !== ' ') return;
+        e.preventDefault();
+        userMenu.click();
       });
 
       document.addEventListener('click', () => {
         userDropdown.classList.add('hidden');
+        userMenu.setAttribute('aria-expanded', 'false');
       });
 
       // Logout

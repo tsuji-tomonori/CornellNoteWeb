@@ -7,19 +7,20 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body style="background: var(--background-color);">
+  <a href="#mainContent" class="skip-link">本文へスキップ</a>
   <!-- Simple Header -->
   <header style="background: var(--surface-color); border-bottom: 1px solid var(--border-color); padding: 16px 24px;">
     <a href="login.html" class="header-logo">Cornell Note</a>
   </header>
 
-  <div class="share-container" style="padding-top: 32px;">
+  <main class="share-container" id="mainContent" tabindex="-1" style="padding-top: 32px;">
     <!-- Loading State -->
     <div id="loadingState" style="text-align: center; padding: 60px;">
       <p>読み込み中...</p>
     </div>
 
     <!-- Error State -->
-    <div id="errorState" class="hidden" style="text-align: center; padding: 60px;">
+    <div id="errorState" class="hidden" role="alert" style="text-align: center; padding: 60px;">
       <p style="font-size: 1.25rem; margin-bottom: 8px;">ノートが見つかりません</p>
       <p style="color: var(--text-secondary);">このリンクは無効か、削除されている可能性があります。</p>
     </div>
@@ -36,17 +37,17 @@
 
       <div class="share-cornell">
         <div class="share-cornell-cue">
-          <div class="cornell-section-label">Cue（キーワード・質問）</div>
+          <div class="cornell-section-label"><span lang="en">Cue</span>（キーワード・質問）</div>
           <div id="cueContent" style="white-space: pre-wrap; line-height: 1.8;"></div>
         </div>
 
         <div class="share-cornell-notes">
-          <div class="cornell-section-label">Notes（メモ・本文）</div>
+          <div class="cornell-section-label"><span lang="en">Notes</span>（メモ・本文）</div>
           <div id="notesContent" style="white-space: pre-wrap; line-height: 1.8;"></div>
         </div>
 
         <div class="share-cornell-summary">
-          <div class="cornell-section-label">Summary（要約）</div>
+          <div class="cornell-section-label"><span lang="en">Summary</span>（要約）</div>
           <div id="summaryContent" style="white-space: pre-wrap; line-height: 1.8;"></div>
         </div>
       </div>
@@ -56,7 +57,10 @@
         <a href="signup.html" class="btn btn-primary">無料で始める</a>
       </div>
     </div>
-  </div>
+  </main>
+
+  <div id="statusRegion" class="visually-hidden" role="status" aria-live="polite"></div>
+  <div id="alertRegion" class="visually-hidden" role="alert" aria-live="assertive"></div>
 
   <script src="js/app.js"></script>
   <script>
@@ -101,6 +105,7 @@
     function showError() {
       document.getElementById('loadingState').classList.add('hidden');
       document.getElementById('errorState').classList.remove('hidden');
+      ui.announceStatus('共有ノートが見つかりません', 'alert');
     }
   </script>
 </body>

@@ -74,27 +74,97 @@ const ui = {
     return overlay;
   },
 
-  closeModal() {
-    const overlay = document.querySelector('.modal-overlay');
-    if (overlay) overlay.remove();
+  openModal(overlay, focusTarget) {
+    if (!overlay) return;
+    const activeElement = document.activeElement;
+    overlay.dataset.lastFocusId = activeElement && activeElement.id ? activeElement.id : '';
+    overlay.classList.remove('hidden');
+    const modal = overlay.querySelector('.modal');
+    const focusableSelectors = 'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])';
+    const focusable = Array.from(overlay.querySelectorAll(focusableSelectors));
+    const first = focusTarget || focusable[0] || modal;
+    const last = focusable[focusable.length - 1] || modal;
+
+    const trap = (event) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        ui.closeModal(overlay);
+        return;
+      }
+
+      if (event.key !== 'Tab') return;
+      if (focusable.length === 0) {
+        event.preventDefault();
+        modal?.focus();
+        return;
+      }
+
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    overlay.dataset.trap = 'true';
+    overlay._trapHandler = trap;
+    overlay.addEventListener('keydown', trap);
+    setTimeout(() => {
+      first?.focus();
+    }, 0);
+  },
+
+  closeModal(overlay) {
+    const modalOverlay = overlay || document.querySelector('.modal-overlay');
+    if (!modalOverlay) return;
+    modalOverlay.classList.add('hidden');
+    if (modalOverlay._trapHandler) {
+      modalOverlay.removeEventListener('keydown', modalOverlay._trapHandler);
+      modalOverlay._trapHandler = null;
+    }
+    const lastFocusId = modalOverlay.dataset.lastFocusId;
+    if (lastFocusId) {
+      document.getElementById(lastFocusId)?.focus();
+    } else {
+      document.activeElement?.blur();
+    }
   },
 
   showToast(message, type = 'info') {
     const toast = document.createElement('div');
     toast.className = `toast toast-${type}`;
     toast.textContent = message;
+    toast.setAttribute('role', type === 'error' ? 'alert' : 'status');
+    toast.setAttribute('aria-live', type === 'error' ? 'assertive' : 'polite');
     toast.style.cssText = `
       position: fixed;
       bottom: 20px;
       right: 20px;
       padding: 12px 20px;
-      background: ${type === 'error' ? '#ef4444' : type === 'success' ? '#22c55e' : '#2563eb'};
+      background: ${type === 'error' ? '#b91c1c' : type === 'success' ? '#15803d' : '#2563eb'};
       color: white;
       border-radius: 6px;
       z-index: 300;
     `;
     document.body.appendChild(toast);
+
+    const regionId = type === 'error' ? 'alertRegion' : 'statusRegion';
+    const region = document.getElementById(regionId);
+    if (region) {
+      region.textContent = message;
+    }
+
     setTimeout(() => toast.remove(), 3000);
+  },
+
+  announceStatus(message, type = 'status') {
+    const regionId = type === 'alert' ? 'alertRegion' : 'statusRegion';
+    const region = document.getElementById(regionId);
+    if (region) {
+      region.textContent = message;
+    }
   },
 
   formatDate(dateString) {
@@ -155,7 +225,14 @@ class AutoSave {
       saving: '保存中...',
       error: '保存エラー'
     };
-    statusEl.innerHTML = `<span>${labels[this.status]}</span>`;
+    const statusText = labels[this.status] || labels.saved;
+    statusEl.innerHTML = `<span>${statusText}</span>`;
+
+    const regionId = this.status === 'error' ? 'alertRegion' : 'statusRegion';
+    const region = document.getElementById(regionId);
+    if (region) {
+      region.textContent = statusText;
+    }
   }
 }
 
