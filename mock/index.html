@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cornell Note</title>
+  <script src="js/app.js"></script>
+  <script>
+    // Redirect based on login status
+    document.addEventListener('DOMContentLoaded', () => {
+      if (CornellApp.storage.isLoggedIn()) {
+        window.location.href = 'notes.html';
+      } else {
+        window.location.href = 'login.html';
+      }
+    });
+  </script>
+</head>
+<body>
+  <p style="text-align: center; padding: 40px;">リダイレクト中...</p>
+</body>
+</html>

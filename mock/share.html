@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>共有ノート - Cornell Note</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body style="background: var(--background-color);">
+  <!-- Simple Header -->
+  <header style="background: var(--surface-color); border-bottom: 1px solid var(--border-color); padding: 16px 24px;">
+    <a href="login.html" class="header-logo">Cornell Note</a>
+  </header>
+
+  <div class="share-container" style="padding-top: 32px;">
+    <!-- Loading State -->
+    <div id="loadingState" style="text-align: center; padding: 60px;">
+      <p>読み込み中...</p>
+    </div>
+
+    <!-- Error State -->
+    <div id="errorState" class="hidden" style="text-align: center; padding: 60px;">
+      <p style="font-size: 1.25rem; margin-bottom: 8px;">ノートが見つかりません</p>
+      <p style="color: var(--text-secondary);">このリンクは無効か、削除されている可能性があります。</p>
+    </div>
+
+    <!-- Note Content -->
+    <div id="noteContent" class="hidden">
+      <div class="share-header">
+        <span class="share-badge">共有ノート（閲覧専用）</span>
+        <h1 class="share-title" id="noteTitle"></h1>
+        <p class="share-meta">
+          作成日: <span id="createdAt"></span>
+        </p>
+      </div>
+
+      <div class="share-cornell">
+        <div class="share-cornell-cue">
+          <div class="cornell-section-label">Cue（キーワード・質問）</div>
+          <div id="cueContent" style="white-space: pre-wrap; line-height: 1.8;"></div>
+        </div>
+
+        <div class="share-cornell-notes">
+          <div class="cornell-section-label">Notes（メモ・本文）</div>
+          <div id="notesContent" style="white-space: pre-wrap; line-height: 1.8;"></div>
+        </div>
+
+        <div class="share-cornell-summary">
+          <div class="cornell-section-label">Summary（要約）</div>
+          <div id="summaryContent" style="white-space: pre-wrap; line-height: 1.8;"></div>
+        </div>
+      </div>
+
+      <div style="text-align: center; margin-top: 32px; padding: 24px; background: var(--surface-color); border-radius: 8px; border: 1px solid var(--border-color);">
+        <p style="margin-bottom: 12px;">Cornell Noteで自分のノートを作成しませんか？</p>
+        <a href="signup.html" class="btn btn-primary">無料で始める</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script>
+    const { api, ui, getUrlParam } = CornellApp;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const token = getUrlParam('token');
+
+      if (!token) {
+        showError();
+        return;
+      }
+
+      try {
+        const data = await api.getSharedNote(token);
+
+        if (data && data.note) {
+          showNote(data);
+        } else {
+          showError();
+        }
+      } catch (error) {
+        console.error('Error loading shared note:', error);
+        showError();
+      }
+    });
+
+    function showNote(data) {
+      document.getElementById('loadingState').classList.add('hidden');
+      document.getElementById('noteContent').classList.remove('hidden');
+
+      const note = data.note;
+      document.getElementById('noteTitle').textContent = note.title;
+      document.getElementById('createdAt').textContent = ui.formatDate(note.createdAt);
+      document.getElementById('cueContent').textContent = note.cue || '(なし)';
+      document.getElementById('notesContent').textContent = note.notes || '(なし)';
+      document.getElementById('summaryContent').textContent = note.summary || '(なし)';
+
+      document.title = `${note.title} - Cornell Note`;
+    }
+
+    function showError() {
+      document.getElementById('loadingState').classList.add('hidden');
+      document.getElementById('errorState').classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>

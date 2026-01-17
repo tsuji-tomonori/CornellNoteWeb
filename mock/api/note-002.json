@@ -1,0 +1,14 @@
+{
+  "noteId": "note-002",
+  "title": "React Hooksの使い方",
+  "notebookId": "nb-001",
+  "tags": [
+    {"tagId": "tag-002", "name": "React"},
+    {"tagId": "tag-005", "name": "復習"}
+  ],
+  "cue": "# React Hooks\n\n- useState の基本\n- useEffect の依存配列\n- useContext の使い所\n- カスタムフックの作成\n- useCallback / useMemo",
+  "notes": "## React Hooks 概要\n\nReact 16.8で導入された機能。関数コンポーネントで状態管理や副作用を扱える。\n\n### useState\n\n```jsx\nconst [count, setCount] = useState(0);\n```\n\n### useEffect\n\n```jsx\nuseEffect(() => {\n  // 副作用の処理\n  document.title = `Count: ${count}`;\n  \n  return () => {\n    // クリーンアップ\n  };\n}, [count]); // 依存配列\n```\n\n### useContext\n\n```jsx\nconst ThemeContext = createContext('light');\n\nfunction App() {\n  return (\n    <ThemeContext.Provider value=\"dark\">\n      <Child />\n    </ThemeContext.Provider>\n  );\n}\n\nfunction Child() {\n  const theme = useContext(ThemeContext);\n  return <div>{theme}</div>;\n}\n```\n\n### カスタムフック\n\n```jsx\nfunction useWindowSize() {\n  const [size, setSize] = useState({ width: 0, height: 0 });\n  \n  useEffect(() => {\n    const handleResize = () => {\n      setSize({ width: window.innerWidth, height: window.innerHeight });\n    };\n    window.addEventListener('resize', handleResize);\n    handleResize();\n    return () => window.removeEventListener('resize', handleResize);\n  }, []);\n  \n  return size;\n}\n```",
+  "summary": "React HooksはクラスコンポーネントなしでReactの機能を使用可能にする。useStateは状態管理、useEffectは副作用（API呼び出し、イベントリスナー等）を扱う。useContextでコンポーネントツリー全体にデータを渡せる。カスタムフックを作成することでロジックの再利用が容易になる。",
+  "createdAt": "2025-01-14T09:00:00Z",
+  "updatedAt": "2025-01-15T11:00:00Z"
+}

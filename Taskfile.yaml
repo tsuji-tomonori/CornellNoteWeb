@@ -5,3 +5,14 @@ tasks:
     desc: Enable git pre-commit hooks
     cmds:
       - pre-commit install
+  openapi:ui:
+    desc: Preview OpenAPI docs in browser
+    dir: /home/t-tsuji/project/CornellNoteWeb
+    cmds:
+      - npm exec --yes --package redoc-cli -- redoc-cli serve docs/03-詳細設計/2.API詳細/openapi.yaml -p 4000
+
+  mock:serve:
+    desc: Start mock app server
+    dir: /home/t-tsuji/project/CornellNoteWeb/mock
+    cmds:
+      - python -m http.server 8080

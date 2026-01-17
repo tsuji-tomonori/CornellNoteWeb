@@ -1,0 +1,22 @@
+{
+  "notebooks": [
+    {
+      "notebookId": "nb-001",
+      "name": "プログラミング学習",
+      "createdAt": "2025-01-10T09:00:00Z",
+      "updatedAt": "2025-01-15T14:30:00Z"
+    },
+    {
+      "notebookId": "nb-002",
+      "name": "読書メモ",
+      "createdAt": "2025-01-05T10:00:00Z",
+      "updatedAt": "2025-01-14T16:00:00Z"
+    },
+    {
+      "notebookId": "nb-003",
+      "name": "会議メモ",
+      "createdAt": "2025-01-08T11:00:00Z",
+      "updatedAt": "2025-01-16T09:00:00Z"
+    }
+  ]
+}

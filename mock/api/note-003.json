@@ -1,0 +1,13 @@
+{
+  "noteId": "note-003",
+  "title": "TypeScript入門",
+  "notebookId": "nb-001",
+  "tags": [
+    {"tagId": "tag-003", "name": "TypeScript"}
+  ],
+  "cue": "# TypeScript基礎\n\n- 基本の型\n- interface vs type\n- ジェネリクス\n- Union型 / Intersection型\n- 型推論",
+  "notes": "## TypeScript とは\n\nJavaScriptに静的型付けを追加したスーパーセット。コンパイル時に型チェックを行い、バグを早期発見できる。\n\n### 基本の型\n\n```typescript\nlet name: string = 'John';\nlet age: number = 25;\nlet isActive: boolean = true;\nlet items: string[] = ['a', 'b', 'c'];\n```\n\n### interface\n\n```typescript\ninterface User {\n  id: number;\n  name: string;\n  email?: string; // オプショナル\n}\n\nconst user: User = { id: 1, name: 'John' };\n```\n\n### type alias\n\n```typescript\ntype Status = 'pending' | 'active' | 'completed';\ntype Point = { x: number; y: number };\n```\n\n### ジェネリクス\n\n```typescript\nfunction identity<T>(arg: T): T {\n  return arg;\n}\n\nconst result = identity<string>('hello');\n```\n\n### Union型\n\n```typescript\ntype StringOrNumber = string | number;\n\nfunction process(value: StringOrNumber) {\n  if (typeof value === 'string') {\n    return value.toUpperCase();\n  }\n  return value * 2;\n}\n```",
+  "summary": "TypeScriptはJavaScriptに型システムを追加した言語。interfaceとtype aliasで独自の型を定義でき、ジェネリクスで汎用的な型を作成できる。Union型で複数の型を許容し、型ガードで安全に処理を分岐できる。型推論により明示的な型注釈を省略できる場合も多い。",
+  "createdAt": "2025-01-13T14:00:00Z",
+  "updatedAt": "2025-01-13T16:00:00Z"
+}

@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ノート編集 - Cornell Note</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="header">
+      <a href="notes.html" class="header-logo">Cornell Note</a>
+      <div class="header-actions" style="margin-left: auto;">
+        <div class="save-status saved">
+          <span>保存済み</span>
+        </div>
+        <button class="btn btn-secondary" id="shareBtn">
+          共有
+        </button>
+        <button class="btn btn-secondary" id="exportBtn">
+          PDF出力
+        </button>
+        <button class="btn btn-secondary" id="deleteBtn" style="color: var(--error-color);">
+          削除
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content (No Sidebar) -->
+    <main class="main-content full-width" style="margin-left: 0; padding: 16px;">
+      <div class="editor-container">
+        <!-- Toolbar -->
+        <div class="editor-toolbar">
+          <a href="notes.html" style="color: var(--text-secondary); text-decoration: none; margin-right: 12px;">&larr; 戻る</a>
+          <input type="text" class="editor-title-input" id="noteTitle" placeholder="ノートのタイトル">
+          <select id="notebookSelect" style="padding: 6px 10px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 0.875rem;">
+            <option value="">ノートブックを選択</option>
+          </select>
+        </div>
+
+        <!-- Cornell Layout -->
+        <div class="cornell-layout">
+          <!-- Cue Column -->
+          <div class="cornell-cue">
+            <div class="cornell-section-label">Cue（キーワード・質問）</div>
+            <textarea class="cornell-textarea" id="cueArea" placeholder="キーワードや質問を記入..."></textarea>
+          </div>
+
+          <!-- Notes Column -->
+          <div class="cornell-notes">
+            <div class="cornell-section-label">Notes（メモ・本文）</div>
+            <textarea class="cornell-textarea" id="notesArea" placeholder="講義や読書のメモを記入..."></textarea>
+          </div>
+
+          <!-- Summary Row -->
+          <div class="cornell-summary">
+            <div class="cornell-section-label">Summary（要約）</div>
+            <textarea class="cornell-textarea" id="summaryArea" placeholder="内容を自分の言葉で要約..." style="height: 80px;"></textarea>
+          </div>
+        </div>
+
+        <!-- Tags -->
+        <div style="padding: 12px 16px; border-top: 1px solid var(--border-color); display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 0.75rem; color: var(--text-secondary);">タグ:</span>
+          <div id="tagContainer" style="display: flex; gap: 4px; flex-wrap: wrap;"></div>
+          <input type="text" id="tagInput" placeholder="タグを追加" style="border: none; outline: none; font-size: 0.875rem; padding: 4px;">
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Share Modal -->
+  <div id="shareModal" class="modal-overlay hidden">
+    <div class="modal">
+      <h3 class="modal-title">共有リンクを作成</h3>
+      <div class="modal-body">
+        <p style="margin-bottom: 12px;">このノートの共有リンクを作成しますか？リンクを知っている人は誰でも閲覧できます。</p>
+        <div id="shareLinkContainer" class="hidden">
+          <input type="text" id="shareLink" class="form-input" readonly style="margin-bottom: 8px;">
+          <button class="btn btn-secondary btn-full" id="copyLinkBtn">リンクをコピー</button>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" id="closeShareModal">キャンセル</button>
+        <button class="btn btn-primary" id="createShareLink">リンクを作成</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Modal -->
+  <div id="deleteModal" class="modal-overlay hidden">
+    <div class="modal">
+      <h3 class="modal-title">ノートを削除</h3>
+      <div class="modal-body">
+        このノートを削除しますか？この操作は取り消せません。
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" id="cancelDelete">キャンセル</button>
+        <button class="btn btn-danger" id="confirmDelete">削除する</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script>
+    const { api, storage, ui, navigateTo, requireAuth, getUrlParam, AutoSave } = CornellApp;
+
+    // Auth check
+    if (!requireAuth()) {
+      // Will redirect to login
+    }
+
+    let currentNote = null;
+    let autoSave = null;
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', async () => {
+      await loadNotebooks();
+      await loadNote();
+      setupAutoSave();
+      setupEventListeners();
+    });
+
+    // Load notebooks for select
+    async function loadNotebooks() {
+      const data = await api.getNotebooks();
+      const select = document.getElementById('notebookSelect');
+
+      if (data && data.notebooks) {
+        data.notebooks.forEach(nb => {
+          const option = document.createElement('option');
+          option.value = nb.notebookId;
+          option.textContent = nb.name;
+          select.appendChild(option);
+        });
+      }
+    }
+
+    // Load note data
+    async function loadNote() {
+      const noteId = getUrlParam('id');
+
+      if (noteId && noteId !== 'new') {
+        const note = await api.getNote(noteId.padStart(3, '0'));
+        if (note) {
+          currentNote = note;
+          document.getElementById('noteTitle').value = note.title;
+          document.getElementById('notebookSelect').value = note.notebookId || '';
+          document.getElementById('cueArea').value = note.cue || '';
+          document.getElementById('notesArea').value = note.notes || '';
+          document.getElementById('summaryArea').value = note.summary || '';
+          document.title = `${note.title} - Cornell Note`;
+
+          // Render tags
+          renderTags(note.tags || []);
+        }
+      } else {
+        // New note
+        currentNote = {
+          noteId: 'new',
+          title: '',
+          notebookId: '',
+          tags: [],
+          cue: '',
+          notes: '',
+          summary: ''
+        };
+      }
+    }
+
+    // Render tags
+    function renderTags(tags) {
+      const container = document.getElementById('tagContainer');
+      container.innerHTML = tags.map(tag => `
+        <span class="tag" style="display: flex; align-items: center; gap: 4px;">
+          ${tag.name}
+          <span style="cursor: pointer; font-size: 0.625rem;" data-remove-tag="${tag.tagId}">&times;</span>
+        </span>
+      `).join('');
+    }
+
+    // Setup auto-save
+    function setupAutoSave() {
+      autoSave = new AutoSave(async () => {
+        // Mock save - just log
+        console.log('Auto-saving...', {
+          title: document.getElementById('noteTitle').value,
+          cue: document.getElementById('cueArea').value,
+          notes: document.getElementById('notesArea').value,
+          summary: document.getElementById('summaryArea').value
+        });
+        // In real app, would call API here
+      }, 1500);
+    }
+
+    // Setup event listeners
+    function setupEventListeners() {
+      // Auto-save on input
+      ['noteTitle', 'cueArea', 'notesArea', 'summaryArea'].forEach(id => {
+        document.getElementById(id).addEventListener('input', () => {
+          autoSave.trigger();
+        });
+      });
+
+      // Tag input
+      const tagInput = document.getElementById('tagInput');
+      tagInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && tagInput.value.trim()) {
+          e.preventDefault();
+          const tagName = tagInput.value.trim();
+          if (!currentNote.tags) currentNote.tags = [];
+          if (!currentNote.tags.some(t => t.name === tagName)) {
+            currentNote.tags.push({
+              tagId: `tag-${Date.now()}`,
+              name: tagName
+            });
+            renderTags(currentNote.tags);
+          }
+          tagInput.value = '';
+          autoSave.trigger();
+        }
+      });
+
+      // Remove tag
+      document.getElementById('tagContainer').addEventListener('click', (e) => {
+        const removeTagId = e.target.dataset.removeTag;
+        if (removeTagId) {
+          currentNote.tags = currentNote.tags.filter(t => t.tagId !== removeTagId);
+          renderTags(currentNote.tags);
+          autoSave.trigger();
+        }
+      });
+
+      // Share button
+      document.getElementById('shareBtn').addEventListener('click', () => {
+        document.getElementById('shareModal').classList.remove('hidden');
+      });
+
+      document.getElementById('closeShareModal').addEventListener('click', () => {
+        document.getElementById('shareModal').classList.add('hidden');
+      });
+
+      document.getElementById('createShareLink').addEventListener('click', () => {
+        const shareUrl = `${window.location.origin}${window.location.pathname.replace('editor.html', 'share.html')}?token=abc123`;
+        document.getElementById('shareLink').value = shareUrl;
+        document.getElementById('shareLinkContainer').classList.remove('hidden');
+        document.getElementById('createShareLink').classList.add('hidden');
+      });
+
+      document.getElementById('copyLinkBtn').addEventListener('click', () => {
+        const linkInput = document.getElementById('shareLink');
+        linkInput.select();
+        document.execCommand('copy');
+        ui.showToast('リンクをコピーしました', 'success');
+      });
+
+      // Export button
+      document.getElementById('exportBtn').addEventListener('click', () => {
+        ui.showToast('PDF生成を開始しました。完了するとダウンロードできます。', 'info');
+        // Mock: after 2 seconds show success
+        setTimeout(() => {
+          ui.showToast('PDFの準備ができました', 'success');
+        }, 2000);
+      });
+
+      // Delete button
+      document.getElementById('deleteBtn').addEventListener('click', () => {
+        document.getElementById('deleteModal').classList.remove('hidden');
+      });
+
+      document.getElementById('cancelDelete').addEventListener('click', () => {
+        document.getElementById('deleteModal').classList.add('hidden');
+      });
+
+      document.getElementById('confirmDelete').addEventListener('click', () => {
+        ui.showToast('ノートを削除しました', 'success');
+        setTimeout(() => navigateTo('notes.html'), 500);
+      });
+
+      // Modal overlay click to close
+      document.querySelectorAll('.modal-overlay').forEach(overlay => {
+        overlay.addEventListener('click', (e) => {
+          if (e.target === overlay) {
+            overlay.classList.add('hidden');
+          }
+        });
+      });
+
+      // Notebook select change
+      document.getElementById('notebookSelect').addEventListener('change', () => {
+        autoSave.trigger();
+      });
+    }
+  </script>
+</body>
+</html>
