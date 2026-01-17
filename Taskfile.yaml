@@ -34,3 +34,14 @@ tasks:
     dir: /home/t-tsuji/project/CornellNoteWeb/mock
     cmds:
       - python -m http.server 4001
+
+  docker:build:
+    desc: Build docker images
+    cmds:
+      - docker compose build
+
+  docker:up:
+    desc: Restart docker compose services
+    cmds:
+      - docker compose down
+      - docker compose up -d
