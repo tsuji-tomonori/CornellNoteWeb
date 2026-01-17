@@ -22,6 +22,99 @@ tasks:
     cmds:
       - bash tools/generate-docs-readme.sh
 
+  backend:build:
+    desc: Build Spring Boot app
+    dir: /home/t-tsuji/project/CornellNoteWeb
+    cmds:
+      - ./gradlew build
+  backend:run:
+    desc: Run Spring Boot app
+    dir: /home/t-tsuji/project/CornellNoteWeb
+    cmds:
+      - ./gradlew bootRun
+  backend:test:
+    desc: Run backend unit tests
+    dir: /home/t-tsuji/project/CornellNoteWeb
+    cmds:
+      - ./gradlew test
+  backend:check:
+    desc: Run backend checks with coverage
+    dir: /home/t-tsuji/project/CornellNoteWeb
+    cmds:
+      - ./gradlew check
+  backend:test:class:
+    desc: Run single backend test class (CLASS=...)
+    dir: /home/t-tsuji/project/CornellNoteWeb
+    cmds:
+      - ./gradlew test --tests "{{.CLASS}}"
+  backend:test:method:
+    desc: Run single backend test method (TEST=...)
+    dir: /home/t-tsuji/project/CornellNoteWeb
+    cmds:
+      - ./gradlew test --tests "{{.TEST}}"
+
+  frontend:install:
+    desc: Install frontend dependencies
+    dir: /home/t-tsuji/project/CornellNoteWeb
+    cmds:
+      - npm install
+  e2e:test:
+    desc: Run all Playwright tests
+    dir: /home/t-tsuji/project/CornellNoteWeb
+    cmds:
+      - npm run test:e2e
+  e2e:ui:
+    desc: Run Playwright tests with UI
+    dir: /home/t-tsuji/project/CornellNoteWeb
+    cmds:
+      - npm run test:e2e:ui
+  e2e:file:
+    desc: Run single Playwright spec (FILE=...)
+    dir: /home/t-tsuji/project/CornellNoteWeb
+    cmds:
+      - npx playwright test "{{.FILE}}"
+  e2e:title:
+    desc: Run Playwright tests by title (FILE=..., TITLE=...)
+    dir: /home/t-tsuji/project/CornellNoteWeb
+    cmds:
+      - npx playwright test "{{.FILE}}" -g "{{.TITLE}}"
+
+  infra:install:
+    desc: Install infra dependencies
+    dir: /home/t-tsuji/project/CornellNoteWeb/infra
+    cmds:
+      - npm install
+  infra:build:
+    desc: Build infra (tsc)
+    dir: /home/t-tsuji/project/CornellNoteWeb/infra
+    cmds:
+      - npm run build
+  infra:test:
+    desc: Run infra tests
+    dir: /home/t-tsuji/project/CornellNoteWeb/infra
+    cmds:
+      - npm test
+  infra:test:file:
+    desc: Run single infra test file (FILE=...)
+    dir: /home/t-tsuji/project/CornellNoteWeb/infra
+    cmds:
+      - npx jest "{{.FILE}}"
+  infra:test:name:
+    desc: Run infra test by name (NAME=...)
+    dir: /home/t-tsuji/project/CornellNoteWeb/infra
+    cmds:
+      - npx jest -t "{{.NAME}}"
+  infra:synth:
+    desc: Run CDK synth
+    dir: /home/t-tsuji/project/CornellNoteWeb/infra
+    cmds:
+      - npm run synth
+  infra:deploy:
+    desc: Run CDK deploy
+    dir: /home/t-tsuji/project/CornellNoteWeb/infra
+    cmds:
+      - npm run deploy
+
   db:status:
     desc: Show dbmate migration status
     cmds:
