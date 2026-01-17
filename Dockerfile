@@ -13,6 +13,14 @@ COPY src /app/src
 
 RUN /app/gradlew --no-daemon bootJar
 
+FROM aquasec/trivy:0.50.2 AS trivy-scan
+
+WORKDIR /scan
+
+COPY --from=build /app/build/libs /scan/libs
+
+RUN trivy fs --no-progress --exit-code 1 --severity HIGH,CRITICAL /scan
+
 FROM eclipse-temurin:21-jre
 
 WORKDIR /app
