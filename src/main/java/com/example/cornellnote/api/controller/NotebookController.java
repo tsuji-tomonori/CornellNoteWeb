@@ -1,8 +1,8 @@
 package com.example.cornellnote.api.controller;
 
 import com.example.cornellnote.api.dto.NotebookResponse;
-import com.example.cornellnote.api.error.UnauthorizedException;
 import com.example.cornellnote.api.service.NotebookService;
+import com.example.cornellnote.api.support.SessionUserIdResolver;
 import jakarta.servlet.http.HttpSession;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
@@ -14,17 +14,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/notebooks")
 public class NotebookController {
   private final NotebookService notebookService;
+  private final SessionUserIdResolver sessionUserIdResolver;
 
-  public NotebookController(NotebookService notebookService) {
+  public NotebookController(NotebookService notebookService, SessionUserIdResolver sessionUserIdResolver) {
     this.notebookService = notebookService;
+    this.sessionUserIdResolver = sessionUserIdResolver;
   }
 
   @GetMapping
   public ResponseEntity<List<NotebookResponse>> listNotebooks(HttpSession session) {
-    String userId = session.getAttribute("userId") instanceof String id ? id : null;
-    if (userId == null || userId.isBlank()) {
-      throw new UnauthorizedException("User session not found");
-    }
+    String userId = sessionUserIdResolver.requireUserId(session);
     return ResponseEntity.ok(notebookService.listNotebooks(userId));
   }
 }
