@@ -4,7 +4,7 @@
 - Cornellノート形式で編集し、自動保存、共有リンク生成、PDF出力、削除を行う。
 
 ## 画面URL/権限
-- URL: `/mock/editor.html?id=<noteId|new>`
+- URL: `/editor.html?id=<noteId|new>`
 - 権限: ログイン必須（未ログインは `login.html` へ遷移）
 
 ## レイアウト/主要要素
@@ -47,8 +47,8 @@
   - `saving`/`saved`/`error` に応じて表示更新
 
 ## データ/外部I/F
-- `api.getNotebooks()` -> `/mock/api/notebooks.json`
-- `api.getNote(id)` -> `/mock/api/note-XXX.json`
+- `api.getNotebooks()` -> `/api/notebooks`
+- `api.getNote(id)` -> `/api/notes/<id>`
 - 共有リンク: `share.html?token=abc123`
 
 ## API/エラーステータス

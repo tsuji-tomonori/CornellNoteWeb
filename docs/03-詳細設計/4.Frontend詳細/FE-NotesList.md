@@ -4,7 +4,7 @@
 - ノート一覧の表示/検索/フィルタ、新規作成への導線を提供する。
 
 ## 画面URL/権限
-- URL: `/mock/notes.html`
+- URL: `/notes.html`
 - 権限: ログイン必須（未ログインは `login.html` へ遷移）
 
 ## レイアウト/主要要素
@@ -46,9 +46,9 @@
   - 空状態表示 + ステータス通知
 
 ## データ/外部I/F
-- `api.getNotebooks()` -> `/mock/api/notebooks.json`
-- `api.getTags()` -> `/mock/api/tags.json`
-- `api.getNotes()` -> `/mock/api/notes.json`
+- `api.getNotebooks()` -> `/api/notebooks`
+- `api.getTags()` -> `/api/tags`
+- `api.getNotes()` -> `/api/notes`
 - セッション: `localStorage` (`cornell_session`)
 
 ## API/エラーステータス

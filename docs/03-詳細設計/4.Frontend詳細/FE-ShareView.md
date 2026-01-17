@@ -4,7 +4,7 @@
 - 共有リンクで読み取り専用のノートを閲覧する。
 
 ## 画面URL/権限
-- URL: `/mock/share.html?token=<shareToken>`
+- URL: `/share.html?token=<shareToken>`
 - 権限: 未ログインでも閲覧可
 
 ## レイアウト/主要要素
@@ -28,7 +28,7 @@
   - ローディング非表示、ノート表示
 
 ## データ/外部I/F
-- `api.getSharedNote(token)` -> `/mock/api/share-<token>.json`
+- `api.getSharedNote(token)` -> `/api/share/<token>`
 
 ## API/エラーステータス
 - 取得系
