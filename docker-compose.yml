@@ -38,6 +38,7 @@ services:
       migrate:
         condition: service_completed_successfully
     environment:
+      SPRING_PROFILES_ACTIVE: local
       DATABASE_URL: jdbc:postgresql://db:5432/cornell_note
       DB_USER: postgres
       DB_PASSWORD: postgres

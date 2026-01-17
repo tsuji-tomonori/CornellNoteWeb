@@ -29,6 +29,8 @@ dependencies {
   implementation 'org.springframework.boot:spring-boot-starter-jdbc'
   implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
   implementation 'org.postgresql:postgresql:42.7.2'
+  implementation 'software.amazon.awssdk:secretsmanager:2.25.27'
+  implementation 'com.fasterxml.jackson.core:jackson-databind'
 
   testImplementation 'org.springframework.boot:spring-boot-starter-test'
   testImplementation 'com.github.database-rider:rider-spring:1.43.0'
