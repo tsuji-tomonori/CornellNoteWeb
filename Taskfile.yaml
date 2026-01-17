@@ -16,6 +16,12 @@ tasks:
     cmds:
       - python -m http.server 4000
 
+  docs:readme:
+    desc: Generate docs/README.md
+    dir: /home/t-tsuji/project/CornellNoteWeb
+    cmds:
+      - bash tools/generate-docs-readme.sh
+
   db:status:
     desc: Show dbmate migration status
     cmds:
