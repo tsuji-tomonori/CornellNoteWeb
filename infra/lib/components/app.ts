@@ -1,9 +1,11 @@
 import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
 import * as ec2 from "aws-cdk-lib/aws-ec2";
+import * as iam from "aws-cdk-lib/aws-iam";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as lambdaEventSources from "aws-cdk-lib/aws-lambda-event-sources";
 import * as logs from "aws-cdk-lib/aws-logs";
+import { NagSuppressions } from "cdk-nag";
 import * as secretsmanager from "aws-cdk-lib/aws-secretsmanager";
 import * as rds from "aws-cdk-lib/aws-rds";
 import * as s3 from "aws-cdk-lib/aws-s3";
@@ -38,6 +40,108 @@ export class AppComponent extends Construct {
       retention: logs.RetentionDays.ONE_MONTH,
     });
 
+    const workerLogGroup = new logs.LogGroup(this, "WorkerLogGroup", {
+      retention: logs.RetentionDays.ONE_MONTH,
+    });
+
+    const apiRole = new iam.Role(this, "ApiLambdaRole", {
+      assumedBy: new iam.ServicePrincipal("lambda.amazonaws.com"),
+    });
+
+    apiRole.addToPolicy(
+      new iam.PolicyStatement({
+        actions: [
+          "logs:CreateLogStream",
+          "logs:PutLogEvents",
+          "logs:DescribeLogStreams",
+        ],
+        resources: [
+          apiLogGroup.logGroupArn,
+          `${apiLogGroup.logGroupArn}:log-stream:*`,
+        ],
+      })
+    );
+
+    apiRole.addToPolicy(
+      new iam.PolicyStatement({
+        actions: [
+          "ec2:CreateNetworkInterface",
+          "ec2:DescribeNetworkInterfaces",
+          "ec2:DeleteNetworkInterface",
+        ],
+        resources: ["*"],
+      })
+    );
+
+    apiRole.addToPolicy(
+      new iam.PolicyStatement({
+        actions: [
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:DeleteObject",
+          "s3:AbortMultipartUpload",
+          "s3:ListMultipartUploadParts",
+        ],
+        resources: [`${props.storageBucket.bucketArn}/*`],
+      })
+    );
+
+    apiRole.addToPolicy(
+      new iam.PolicyStatement({
+        actions: ["s3:ListBucket", "s3:GetBucketLocation", "s3:ListBucketMultipartUploads"],
+        resources: [props.storageBucket.bucketArn],
+      })
+    );
+
+    const workerRole = new iam.Role(this, "WorkerLambdaRole", {
+      assumedBy: new iam.ServicePrincipal("lambda.amazonaws.com"),
+    });
+
+    workerRole.addToPolicy(
+      new iam.PolicyStatement({
+        actions: [
+          "logs:CreateLogStream",
+          "logs:PutLogEvents",
+          "logs:DescribeLogStreams",
+        ],
+        resources: [
+          workerLogGroup.logGroupArn,
+          `${workerLogGroup.logGroupArn}:log-stream:*`,
+        ],
+      })
+    );
+
+    workerRole.addToPolicy(
+      new iam.PolicyStatement({
+        actions: [
+          "ec2:CreateNetworkInterface",
+          "ec2:DescribeNetworkInterfaces",
+          "ec2:DeleteNetworkInterface",
+        ],
+        resources: ["*"],
+      })
+    );
+
+    workerRole.addToPolicy(
+      new iam.PolicyStatement({
+        actions: [
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:DeleteObject",
+          "s3:AbortMultipartUpload",
+          "s3:ListMultipartUploadParts",
+        ],
+        resources: [`${props.storageBucket.bucketArn}/*`],
+      })
+    );
+
+    workerRole.addToPolicy(
+      new iam.PolicyStatement({
+        actions: ["s3:ListBucket", "s3:GetBucketLocation", "s3:ListBucketMultipartUploads"],
+        resources: [props.storageBucket.bucketArn],
+      })
+    );
+
     this.apiLambda = new lambda.Function(this, "ApiLambda", {
       functionName: `cornellnote-${props.envName}-api`,
       runtime: lambda.Runtime.JAVA_21,
@@ -48,16 +152,13 @@ export class AppComponent extends Construct {
       vpc: props.vpc,
       securityGroups: [props.appSecurityGroup],
       logGroup: apiLogGroup,
+      role: apiRole,
       tracing: lambda.Tracing.ACTIVE,
       reservedConcurrentExecutions: props.envName === "prod" ? 200 : 50,
       environment: {
         ...commonEnv,
         HANDLER_TYPE: "api",
       },
-    });
-
-    const workerLogGroup = new logs.LogGroup(this, "WorkerLogGroup", {
-      retention: logs.RetentionDays.ONE_MONTH,
     });
 
     this.workerLambda = new lambda.Function(this, "WorkerLambda", {
@@ -70,6 +171,7 @@ export class AppComponent extends Construct {
       vpc: props.vpc,
       securityGroups: [props.appSecurityGroup],
       logGroup: workerLogGroup,
+      role: workerRole,
       tracing: lambda.Tracing.ACTIVE,
       environment: {
         ...commonEnv,
@@ -86,8 +188,45 @@ export class AppComponent extends Construct {
 
     props.dbSecret.grantRead(this.apiLambda);
     props.dbSecret.grantRead(this.workerLambda);
-    props.storageBucket.grantReadWrite(this.apiLambda);
-    props.storageBucket.grantReadWrite(this.workerLambda);
     props.queue.grantConsumeMessages(this.workerLambda);
+
+    const apiDefaultPolicy = apiRole.node.findChild("DefaultPolicy") as iam.Policy;
+    const workerDefaultPolicy = workerRole.node.findChild("DefaultPolicy") as iam.Policy;
+
+    NagSuppressions.addResourceSuppressions(
+      apiDefaultPolicy.node.defaultChild as iam.CfnPolicy,
+      [
+        {
+          id: "AwsSolutions-IAM5",
+          reason: "アプリ実行に必要な権限で一部ワイルドカードが避けられない",
+        },
+      ],
+      true
+    );
+
+    NagSuppressions.addResourceSuppressions(
+      workerDefaultPolicy.node.defaultChild as iam.CfnPolicy,
+      [
+        {
+          id: "AwsSolutions-IAM5",
+          reason: "ワーカー実行に必要な権限で一部ワイルドカードが避けられない",
+        },
+      ],
+      true
+    );
+
+    NagSuppressions.addResourceSuppressions(this.apiLambda, [
+      {
+        id: "AwsSolutions-L1",
+        reason: "Java 21を利用するためランタイムを固定",
+      },
+    ]);
+
+    NagSuppressions.addResourceSuppressions(this.workerLambda, [
+      {
+        id: "AwsSolutions-L1",
+        reason: "Java 21を利用するためランタイムを固定",
+      },
+    ]);
   }
 }

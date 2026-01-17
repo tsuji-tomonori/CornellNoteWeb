@@ -1,5 +1,6 @@
-import { App } from "aws-cdk-lib";
-import { Match, Template } from "aws-cdk-lib/assertions";
+import { App, Aspects } from "aws-cdk-lib";
+import { Annotations, Match, Template } from "aws-cdk-lib/assertions";
+import { AwsSolutionsChecks } from "cdk-nag";
 import { CornellNoteStack } from "../lib/stack";
 
 const createTemplate = (envName = "dev") => {
@@ -11,11 +12,17 @@ const createTemplate = (envName = "dev") => {
   const stack = new CornellNoteStack(app, `CornellNote-${envName}`, {
     envName,
   });
-  return Template.fromStack(stack);
+  Aspects.of(stack).add(new AwsSolutionsChecks({
+    verbose: true,
+  }));
+  return {
+    stack,
+    template: Template.fromStack(stack),
+  };
 };
 
 describe("CornellNote Infra Assertions", () => {
-  const template = createTemplate();
+  const { stack, template } = createTemplate();
 
   test("INF-API-001 API Gateway has access logs enabled", () => {
     template.hasResourceProperties("AWS::ApiGatewayV2::Stage", {
@@ -221,5 +228,10 @@ describe("CornellNote Infra Assertions", () => {
       JSON.stringify(policy).includes("\"Resource\":\"*\"")
     );
     expect(hasAdmin).toBe(false);
+  });
+
+  test("CDK-NAG-AWS-SOLUTIONS", () => {
+    const annotations = Annotations.fromStack(stack);
+    annotations.hasNoError("*", Match.anyValue());
   });
 });

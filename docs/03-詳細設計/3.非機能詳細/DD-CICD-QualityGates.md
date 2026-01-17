@@ -9,6 +9,7 @@
 ## パイプライン構成
 - Lint/静的解析: ESLint/TypeCheck、重大違反 0件
 - 依存関係スキャン: Trivy/Snyk、Critical/High 0件
+- IaCセキュリティ検査: cdk-nag (AwsSolutionsChecks)、エラー0件
 - 自動テスト
   - Unit: カバレッジ 80%以上
   - Integration: 主要API 100%通過

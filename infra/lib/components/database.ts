@@ -3,6 +3,7 @@ import { Construct } from "constructs";
 import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as rds from "aws-cdk-lib/aws-rds";
 import * as secretsmanager from "aws-cdk-lib/aws-secretsmanager";
+import { NagSuppressions } from "cdk-nag";
 
 interface DatabaseComponentProps {
   vpc: ec2.IVpc;
@@ -46,9 +47,10 @@ export class DatabaseComponent extends Construct {
         retention: cdk.Duration.days(90),
         preferredWindow: "18:00-19:00",
       },
+      iamAuthentication: true,
       serverlessV2MinCapacity: 0.5,
       serverlessV2MaxCapacity: props.envName === "prod" ? 4 : 2,
-      deletionProtection: props.envName === "prod",
+      deletionProtection: true,
       cloudwatchLogsExports: ["postgresql"],
     });
 
@@ -62,5 +64,17 @@ export class DatabaseComponent extends Construct {
       throw new Error("Database secret was not created");
     }
     this.secret = secret;
+
+    const secretResource = this.cluster.node.findChild("Secret");
+    NagSuppressions.addResourceSuppressions(
+      secretResource,
+      [
+        {
+          id: "AwsSolutions-SMG4",
+          reason: "Aurora Serverless v2の自動ローテーションは運用手順で管理",
+        },
+      ],
+      true
+    );
   }
 }

@@ -37,6 +37,7 @@ export class ApiComponent extends Construct {
     const route = new apigwv2.CfnRoute(this, "ApiRoute", {
       apiId: api.ref,
       routeKey: "ANY /{proxy+}",
+      authorizationType: "AWS_IAM",
       target: `integrations/${integration.ref}`,
     });
 
