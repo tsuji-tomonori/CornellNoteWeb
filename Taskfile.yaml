@@ -20,4 +20,4 @@ tasks:
     desc: Start mock app server
     dir: /home/t-tsuji/project/CornellNoteWeb/mock
     cmds:
-      - python -m http.server 8080
+      - python -m http.server 4001
