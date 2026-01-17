@@ -16,6 +16,19 @@ tasks:
     cmds:
       - python -m http.server 4000
 
+  db:status:
+    desc: Show dbmate migration status
+    cmds:
+      - dbmate --migrations-dir "./migrations" status
+  db:up:
+    desc: Apply dbmate migrations
+    cmds:
+      - dbmate --migrations-dir "./migrations" up
+  db:down:
+    desc: Roll back latest dbmate migration
+    cmds:
+      - dbmate --migrations-dir "./migrations" down
+
   mock:serve:
     desc: Start mock app server
     dir: /home/t-tsuji/project/CornellNoteWeb/mock
