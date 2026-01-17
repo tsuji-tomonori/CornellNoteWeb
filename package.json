@@ -1,0 +1,13 @@
+{
+  "name": "cornell-note-web",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "devDependencies": {
+    "@playwright/test": "^1.49.0"
+  },
+  "scripts": {
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui"
+  }
+}
