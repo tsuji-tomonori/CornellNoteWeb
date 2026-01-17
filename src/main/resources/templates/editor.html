@@ -139,7 +139,7 @@
       const noteId = getUrlParam('id');
 
       if (noteId && noteId !== 'new') {
-        const note = await api.getNote(noteId.padStart(3, '0'));
+        const note = await api.getNote(noteId);
         if (note) {
           currentNote = note;
           document.getElementById('noteTitle').value = note.title;

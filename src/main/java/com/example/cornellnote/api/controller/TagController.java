@@ -23,7 +23,7 @@ public class TagController {
 
   @GetMapping
   public ResponseEntity<List<TagResponse>> listTags(HttpSession session) {
-    String userId = sessionUserIdResolver.requireUserId(session);
+    java.util.UUID userId = sessionUserIdResolver.requireUserId(session);
     return ResponseEntity.ok(tagService.listTags(userId));
   }
 }

@@ -2,7 +2,8 @@ import { defineConfig } from '@playwright/test';
 import path from 'node:path';
 
 const env = process.env.APP_ENV ?? 'real';
-const baseURL = env === 'mock' ? 'http://localhost:4001' : 'http://localhost:3000';
+const defaultBaseURL = env === 'mock' ? 'http://localhost:4001' : 'http://localhost:3000';
+const baseURL = process.env.APP_BASE_URL ?? defaultBaseURL;
 const snapshotRoot = env === 'mock'
   ? path.resolve('mock/screenshots')
   : path.resolve('tests/e2e/visual');

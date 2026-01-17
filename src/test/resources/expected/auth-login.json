@@ -1,5 +1,5 @@
 {
-  "userId": "user-001",
+  "userId": "${json-unit.ignore}",
   "email": "demo@example.com",
   "displayName": "demo"
 }

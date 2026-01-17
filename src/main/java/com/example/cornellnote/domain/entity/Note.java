@@ -5,15 +5,16 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.Instant;
+import java.util.UUID;
 
 @Entity
 @Table(name = "notes")
 public class Note {
   @Id
-  private String id;
+  private UUID id;
 
   @Column(name = "notebook_id", nullable = false)
-  private String notebookId;
+  private UUID notebookId;
 
   @Column(nullable = false)
   private String title;
@@ -42,7 +43,7 @@ public class Note {
   protected Note() {
   }
 
-  public Note(String id, String notebookId, String title, String contentRef, String summaryRef, String cueRef,
+  public Note(UUID id, UUID notebookId, String title, String contentRef, String summaryRef, String cueRef,
       String status, Instant createdAt, Instant updatedAt, Instant deletedAt) {
     this.id = id;
     this.notebookId = notebookId;
@@ -56,11 +57,11 @@ public class Note {
     this.deletedAt = deletedAt;
   }
 
-  public String getId() {
+  public UUID getId() {
     return id;
   }
 
-  public String getNotebookId() {
+  public UUID getNotebookId() {
     return notebookId;
   }
 

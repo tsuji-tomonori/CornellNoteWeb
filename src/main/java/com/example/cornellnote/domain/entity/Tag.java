@@ -5,15 +5,16 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.Instant;
+import java.util.UUID;
 
 @Entity
 @Table(name = "tags")
 public class Tag {
   @Id
-  private String id;
+  private UUID id;
 
   @Column(name = "user_id", nullable = false)
-  private String userId;
+  private UUID userId;
 
   @Column(nullable = false)
   private String name;
@@ -27,7 +28,7 @@ public class Tag {
   protected Tag() {
   }
 
-  public Tag(String id, String userId, String name, Instant createdAt, Instant updatedAt) {
+  public Tag(UUID id, UUID userId, String name, Instant createdAt, Instant updatedAt) {
     this.id = id;
     this.userId = userId;
     this.name = name;
@@ -35,11 +36,11 @@ public class Tag {
     this.updatedAt = updatedAt;
   }
 
-  public String getId() {
+  public UUID getId() {
     return id;
   }
 
-  public String getUserId() {
+  public UUID getUserId() {
     return userId;
   }
 

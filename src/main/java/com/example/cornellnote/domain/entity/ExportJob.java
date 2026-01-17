@@ -5,15 +5,16 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.Instant;
+import java.util.UUID;
 
 @Entity
 @Table(name = "export_jobs")
 public class ExportJob {
   @Id
-  private String id;
+  private UUID id;
 
   @Column(name = "note_id", nullable = false)
-  private String noteId;
+  private UUID noteId;
 
   @Column(nullable = false)
   private String status;
@@ -33,7 +34,7 @@ public class ExportJob {
   protected ExportJob() {
   }
 
-  public ExportJob(String id, String noteId, String status, String outputRef, String errorMessage,
+  public ExportJob(UUID id, UUID noteId, String status, String outputRef, String errorMessage,
       Instant createdAt, Instant completedAt) {
     this.id = id;
     this.noteId = noteId;
@@ -44,11 +45,11 @@ public class ExportJob {
     this.completedAt = completedAt;
   }
 
-  public String getId() {
+  public UUID getId() {
     return id;
   }
 
-  public String getNoteId() {
+  public UUID getNoteId() {
     return noteId;
   }
 

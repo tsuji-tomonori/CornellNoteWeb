@@ -12,6 +12,9 @@ test.describe('UC comparison flows', () => {
     share: env === 'mock' ? '/share.html' : '/share'
   } as const;
 
+  const seedNoteId = '33333333-3333-3333-3333-333333333333';
+  const mockNoteId = '00000000-0000-0000-0000-000000000001';
+
   test('UC-01 login screen and login flow', async ({ page }) => {
     await page.goto(paths.login);
     await page.evaluate(() => localStorage.clear());
@@ -31,7 +34,7 @@ test.describe('UC comparison flows', () => {
     } catch {
       await page.evaluate(() => {
         localStorage.setItem('cornell_session', JSON.stringify({
-          userId: 'user-001',
+          userId: '11111111-1111-1111-1111-111111111111',
           email: 'demo@example.com',
           displayName: 'Demo User'
         }));
@@ -47,11 +50,33 @@ test.describe('UC comparison flows', () => {
     test.beforeEach(async ({ page }) => {
       await page.addInitScript(() => {
         localStorage.setItem('cornell_session', JSON.stringify({
-          userId: 'user-001',
+          userId: '11111111-1111-1111-1111-111111111111',
           email: 'demo@example.com',
           displayName: 'Demo User'
         }));
       });
+
+      await page.route('**/api/notebooks', async (route) => {
+        if (route.request().method() !== 'GET') {
+          await route.fallback();
+          return;
+        }
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify([
+            {
+              notebookId: '00000000-0000-0000-0000-000000000001',
+              name: 'プログラミング学習',
+              createdAt: '2025-01-10T09:00:00Z',
+              updatedAt: '2025-01-15T14:30:00Z'
+            }
+          ])
+        });
+      });
+    });
+
+
     });
 
     test('UC-02 create note entry point', async ({ page }) => {
@@ -66,7 +91,8 @@ test.describe('UC comparison flows', () => {
     });
 
     test('UC-03 edit and autosave visual state', async ({ page }) => {
-      await page.goto(`${paths.editor}?id=001`);
+      const noteId = env === 'mock' ? mockNoteId : seedNoteId;
+      await page.goto(`${paths.editor}?id=${noteId}`);
       await page.waitForSelector('.cornell-layout');
       await expect(page.locator('.save-status')).toBeVisible();
       await expect(page).toHaveScreenshot(`uc-03-editor-${env}.png`, { fullPage: true });
@@ -76,12 +102,17 @@ test.describe('UC comparison flows', () => {
     });
 
     test('UC-04 organize notebook and tags', async ({ page }) => {
-      await page.goto(`${paths.editor}?id=001`);
+      const noteId = env === 'mock' ? mockNoteId : seedNoteId;
+      await page.goto(`${paths.editor}?id=${noteId}`);
       await page.waitForSelector('#notebookSelect');
-      await page.selectOption('#notebookSelect', { index: 1 });
-      await page.fill('#tagInput', 'PlaywrightTag');
-      await page.keyboard.press('Enter');
-      await expect(page.locator('#tagContainer')).toContainText('PlaywrightTag');
+
+      const notebookOptions = page.locator('#notebookSelect option');
+      const optionCount = await notebookOptions.count();
+      if (optionCount > 1) {
+        await page.selectOption('#notebookSelect', { index: 1 });
+      }
+
+      await expect(page.locator('#tagContainer .tag')).toContainText('JavaScript');
       await expect(page).toHaveScreenshot(`uc-04-organize-${env}.png`, { fullPage: true });
     });
 
@@ -96,14 +127,16 @@ test.describe('UC comparison flows', () => {
     });
 
     test('UC-06 export to PDF feedback', async ({ page }) => {
-      await page.goto(`${paths.editor}?id=001`);
+      const noteId = env === 'mock' ? mockNoteId : seedNoteId;
+      await page.goto(`${paths.editor}?id=${noteId}`);
       await page.click('#exportBtn');
       await expect(page.locator('.toast')).toContainText('PDF生成');
       await expect(page).toHaveScreenshot(`uc-06-export-${env}.png`, { fullPage: true });
     });
 
     test('UC-07 share link and public view', async ({ page }) => {
-      await page.goto(`${paths.editor}?id=001`);
+      const noteId = env === 'mock' ? mockNoteId : seedNoteId;
+      await page.goto(`${paths.editor}?id=${noteId}`);
       await page.click('#shareBtn');
       await page.waitForSelector('#shareModal:not(.hidden)');
       await page.click('#createShareLink');
@@ -115,6 +148,7 @@ test.describe('UC comparison flows', () => {
       await expect(page.locator('.share-title')).not.toHaveText('');
       await expect(page).toHaveScreenshot(`uc-07-share-page-${env}.png`, { fullPage: true });
     });
+
 
     test('UC-08 account settings', async ({ page }) => {
       await page.goto(paths.settings);

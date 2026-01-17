@@ -1,5 +1,5 @@
 {
-  "noteId": "11111111-2222-3333-4444-555555555555",
+  "noteId": "${json-unit.ignore}",
   "title": "JavaScriptの非同期処理",
   "cue": "# キーポイント",
   "notes": "Promise、async/await、コールバック関数について学習。非同期処理の基本概念を整理...",

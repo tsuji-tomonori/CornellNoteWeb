@@ -4,6 +4,7 @@ import com.example.cornellnote.api.dto.NotebookResponse;
 import com.example.cornellnote.domain.entity.Notebook;
 import com.example.cornellnote.domain.repository.NotebookRepository;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +16,7 @@ public class NotebookService {
     this.notebookRepository = notebookRepository;
   }
 
-  public List<NotebookResponse> listNotebooks(String userId) {
+  public List<NotebookResponse> listNotebooks(UUID userId) {
     return notebookRepository.findByUserIdOrderBySortOrderAsc(userId).stream()
         .map(this::toResponse)
         .collect(Collectors.toList());

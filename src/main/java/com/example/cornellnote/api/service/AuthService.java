@@ -9,11 +9,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class AuthService {
   public AuthSession signup(AuthCredentials request) {
-    return new AuthSession(UUID.randomUUID().toString(), request.email(), request.email().split("@")[0]);
+    return new AuthSession(UUID.randomUUID(), request.email(), request.email().split("@")[0]);
   }
 
   public AuthSession login(AuthCredentials request) {
-    return new AuthSession("user-001", request.email(), request.email().split("@")[0]);
+    return new AuthSession(UUID.randomUUID(), request.email(), request.email().split("@")[0]);
   }
 
   public void logout() {

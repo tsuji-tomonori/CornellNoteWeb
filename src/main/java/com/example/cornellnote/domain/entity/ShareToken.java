@@ -5,15 +5,16 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.Instant;
+import java.util.UUID;
 
 @Entity
 @Table(name = "share_tokens")
 public class ShareToken {
   @Id
-  private String id;
+  private UUID id;
 
   @Column(name = "note_id", nullable = false)
-  private String noteId;
+  private UUID noteId;
 
   @Column(name = "token_hash", nullable = false)
   private String tokenHash;
@@ -33,7 +34,7 @@ public class ShareToken {
   protected ShareToken() {
   }
 
-  public ShareToken(String id, String noteId, String tokenHash, String status, Instant expiresAt,
+  public ShareToken(UUID id, UUID noteId, String tokenHash, String status, Instant expiresAt,
       Instant createdAt, Instant revokedAt) {
     this.id = id;
     this.noteId = noteId;
@@ -44,11 +45,11 @@ public class ShareToken {
     this.revokedAt = revokedAt;
   }
 
-  public String getId() {
+  public UUID getId() {
     return id;
   }
 
-  public String getNoteId() {
+  public UUID getNoteId() {
     return noteId;
   }
 

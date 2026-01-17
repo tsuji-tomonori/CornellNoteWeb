@@ -2,14 +2,15 @@ package com.example.cornellnote.api.dto;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 public record NoteResponse(
-    String noteId,
+    UUID noteId,
     String title,
     String cue,
     String notes,
     String summary,
-    String notebookId,
+    UUID notebookId,
     List<TagResponse> tags,
     Instant createdAt,
     Instant updatedAt

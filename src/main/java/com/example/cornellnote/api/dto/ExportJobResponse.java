@@ -1,10 +1,11 @@
 package com.example.cornellnote.api.dto;
 
 import java.time.Instant;
+import java.util.UUID;
 
 public record ExportJobResponse(
-    String exportId,
-    String noteId,
+    UUID exportId,
+    UUID noteId,
     String status,
     String downloadUrl,
     Instant createdAt,

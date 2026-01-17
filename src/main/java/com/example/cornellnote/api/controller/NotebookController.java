@@ -23,7 +23,7 @@ public class NotebookController {
 
   @GetMapping
   public ResponseEntity<List<NotebookResponse>> listNotebooks(HttpSession session) {
-    String userId = sessionUserIdResolver.requireUserId(session);
+    java.util.UUID userId = sessionUserIdResolver.requireUserId(session);
     return ResponseEntity.ok(notebookService.listNotebooks(userId));
   }
 }

@@ -4,6 +4,7 @@ import com.example.cornellnote.api.dto.TagResponse;
 import com.example.cornellnote.domain.entity.Tag;
 import com.example.cornellnote.domain.repository.TagRepository;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +16,7 @@ public class TagService {
     this.tagRepository = tagRepository;
   }
 
-  public List<TagResponse> listTags(String userId) {
+  public List<TagResponse> listTags(UUID userId) {
     return tagRepository.findByUserIdOrderByNameAsc(userId).stream()
         .map(this::toResponse)
         .collect(Collectors.toList());

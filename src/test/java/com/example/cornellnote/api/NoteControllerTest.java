@@ -57,7 +57,7 @@ class NoteControllerTest extends ApiTestSupport {
         "Cue",
         "Notes",
         "Summary",
-        "22222222-2222-2222-2222-222222222222",
+        java.util.UUID.fromString("22222222-2222-2222-2222-222222222222"),
         java.util.List.of()
     );
 
@@ -110,7 +110,7 @@ class NoteControllerTest extends ApiTestSupport {
         "更新Notes",
         "更新Summary",
         null,
-        java.util.List.of("99999999-9999-9999-9999-999999999999")
+        java.util.List.of(java.util.UUID.fromString("99999999-9999-9999-9999-999999999999"))
     );
 
     String response = mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put("/api/notes/{noteId}", "33333333-3333-3333-3333-333333333333")

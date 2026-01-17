@@ -1,11 +1,12 @@
 package com.example.cornellnote.api.dto;
 
 import java.time.Instant;
+import java.util.UUID;
 
 public record ShareLinkResponse(
-    String shareToken,
+    UUID shareToken,
     String url,
-    String noteId,
+    UUID noteId,
     Instant createdAt
 ) {
 }

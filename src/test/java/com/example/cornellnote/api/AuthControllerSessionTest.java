@@ -43,7 +43,7 @@ class AuthControllerSessionTest extends ApiTestSupport {
         .andExpect(MockMvcResultMatchers.status().isOk());
 
     Assertions.assertThat(session.getAttribute("userId"))
-        .isEqualTo("user-001");
+        .isInstanceOf(java.util.UUID.class);
   }
 
   @Test

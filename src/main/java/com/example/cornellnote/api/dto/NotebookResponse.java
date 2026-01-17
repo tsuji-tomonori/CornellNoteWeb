@@ -1,9 +1,10 @@
 package com.example.cornellnote.api.dto;
 
 import java.time.Instant;
+import java.util.UUID;
 
 public record NotebookResponse(
-    String notebookId,
+    UUID notebookId,
     String name,
     Instant createdAt,
     Instant updatedAt

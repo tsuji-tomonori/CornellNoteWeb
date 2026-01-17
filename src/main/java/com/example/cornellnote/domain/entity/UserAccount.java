@@ -5,12 +5,13 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.Instant;
+import java.util.UUID;
 
 @Entity
 @Table(name = "users")
 public class UserAccount {
   @Id
-  private String id;
+  private UUID id;
 
   @Column(nullable = false)
   private String email;
@@ -33,7 +34,7 @@ public class UserAccount {
   protected UserAccount() {
   }
 
-  public UserAccount(String id, String email, String authProvider, String status, Instant createdAt,
+  public UserAccount(UUID id, String email, String authProvider, String status, Instant createdAt,
       Instant updatedAt, Instant deletedAt) {
     this.id = id;
     this.email = email;
@@ -44,7 +45,7 @@ public class UserAccount {
     this.deletedAt = deletedAt;
   }
 
-  public String getId() {
+  public UUID getId() {
     return id;
   }
 

@@ -211,17 +211,8 @@
         const card = e.target.closest('.note-card');
         if (card) {
           const noteId = card.dataset.noteId;
-          navigateTo('editor.html', { id: noteId.replace('note-', '') });
-        }
-      });
+          navigateTo('editor.html', { id: noteId });
 
-      document.getElementById('noteGrid').addEventListener('keydown', (e) => {
-        if (e.key !== 'Enter' && e.key !== ' ') return;
-        const card = e.target.closest('.note-card');
-        if (card) {
-          e.preventDefault();
-          const noteId = card.dataset.noteId;
-          navigateTo('editor.html', { id: noteId.replace('note-', '') });
         }
       });
 

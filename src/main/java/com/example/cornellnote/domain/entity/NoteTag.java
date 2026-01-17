@@ -6,6 +6,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.IdClass;
 import jakarta.persistence.Table;
 import java.io.Serializable;
+import java.util.UUID;
 
 @Entity
 @Table(name = "note_tags")
@@ -13,36 +14,36 @@ import java.io.Serializable;
 public class NoteTag {
   @Id
   @Column(name = "note_id")
-  private String noteId;
+  private UUID noteId;
 
   @Id
   @Column(name = "tag_id")
-  private String tagId;
+  private UUID tagId;
 
   protected NoteTag() {
   }
 
-  public NoteTag(String noteId, String tagId) {
+  public NoteTag(UUID noteId, UUID tagId) {
     this.noteId = noteId;
     this.tagId = tagId;
   }
 
-  public String getNoteId() {
+  public UUID getNoteId() {
     return noteId;
   }
 
-  public String getTagId() {
+  public UUID getTagId() {
     return tagId;
   }
 
   public static class NoteTagId implements Serializable {
-    private String noteId;
-    private String tagId;
+    private UUID noteId;
+    private UUID tagId;
 
     public NoteTagId() {
     }
 
-    public NoteTagId(String noteId, String tagId) {
+    public NoteTagId(UUID noteId, UUID tagId) {
       this.noteId = noteId;
       this.tagId = tagId;
     }
@@ -56,10 +57,10 @@ public class NoteTag {
         return false;
       }
       NoteTagId that = (NoteTagId) o;
-      if (!noteId.equals(that.noteId)) {
+      if (noteId != null ? !noteId.equals(that.noteId) : that.noteId != null) {
         return false;
       }
-      return tagId.equals(that.tagId);
+      return tagId != null ? tagId.equals(that.tagId) : that.tagId == null;
     }
 
     @Override
