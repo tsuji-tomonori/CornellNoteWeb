@@ -1,0 +1,53 @@
+{
+  "notes": [
+    {
+      "noteId": "note-001",
+      "title": "JavaScriptの非同期処理",
+      "notebookId": "nb-001",
+      "tags": [
+        {"tagId": "tag-001", "name": "JavaScript"},
+        {"tagId": "tag-004", "name": "重要"}
+      ],
+      "preview": "Promise、async/await、コールバック関数について学習。非同期処理の基本概念を整理...",
+      "createdAt": "2025-01-15T10:00:00Z",
+      "updatedAt": "2025-01-16T14:30:00Z"
+    },
+    {
+      "noteId": "note-002",
+      "title": "React Hooksの使い方",
+      "notebookId": "nb-001",
+      "tags": [
+        {"tagId": "tag-002", "name": "React"},
+        {"tagId": "tag-005", "name": "復習"}
+      ],
+      "preview": "useState、useEffect、useContextなど主要なHooksの使い方とベストプラクティス...",
+      "createdAt": "2025-01-14T09:00:00Z",
+      "updatedAt": "2025-01-15T11:00:00Z"
+    },
+    {
+      "noteId": "note-003",
+      "title": "TypeScript入門",
+      "notebookId": "nb-001",
+      "tags": [
+        {"tagId": "tag-003", "name": "TypeScript"}
+      ],
+      "preview": "型システムの基礎、interface、type alias、ジェネリクスの基本的な使い方...",
+      "createdAt": "2025-01-13T14:00:00Z",
+      "updatedAt": "2025-01-13T16:00:00Z"
+    },
+    {
+      "noteId": "note-004",
+      "title": "プロジェクト計画会議",
+      "notebookId": "nb-003",
+      "tags": [
+        {"tagId": "tag-004", "name": "重要"}
+      ],
+      "preview": "Q1のマイルストーン確認、タスク割り当て、リスク分析について議論...",
+      "createdAt": "2025-01-16T09:00:00Z",
+      "updatedAt": "2025-01-16T10:30:00Z"
+    }
+  ],
+  "total": 4,
+  "limit": 20,
+  "offset": 0
+}

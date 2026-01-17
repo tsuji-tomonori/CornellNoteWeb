@@ -1,0 +1,12 @@
+{
+  "shareToken": "abc123",
+  "note": {
+    "noteId": "note-001",
+    "title": "JavaScriptの非同期処理",
+    "cue": "# キーポイント\n\n- Promise とは？\n- async/await の使い方\n- コールバック地獄の回避\n- エラーハンドリング\n- 並列実行 vs 直列実行",
+    "notes": "## 非同期処理の基本\n\nJavaScriptはシングルスレッドで動作するため、時間のかかる処理（API呼び出し、ファイル読み込みなど）をブロックせずに実行する仕組みが必要。\n\n### Promise\n\n```javascript\nconst promise = new Promise((resolve, reject) => {\n  // 非同期処理\n  if (success) {\n    resolve(result);\n  } else {\n    reject(error);\n  }\n});\n```\n\n### async/await\n\n```javascript\nasync function fetchData() {\n  try {\n    const response = await fetch('/api/data');\n    const data = await response.json();\n    return data;\n  } catch (error) {\n    console.error(error);\n  }\n}\n```\n\n### Promise.all（並列実行）\n\n```javascript\nconst results = await Promise.all([\n  fetch('/api/users'),\n  fetch('/api/posts')\n]);\n```",
+    "summary": "JavaScriptの非同期処理は、シングルスレッドの制約を克服するための重要な概念。Promiseは非同期操作を表現するオブジェクトで、async/awaitはPromiseをより直感的に扱える構文。エラーハンドリングはtry-catchで行い、複数の非同期処理を並列実行したい場合はPromise.allを使用する。",
+    "createdAt": "2025-01-15T10:00:00Z"
+  },
+  "createdAt": "2025-01-16T12:00:00Z"
+}

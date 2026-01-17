@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ノート編集 - Cornell Note</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <a href="#mainContent" class="skip-link">本文へスキップ</a>
+  <div class="app-container">
+    <header class="header">
+      <a href="/notes" class="header-logo">Cornell Note</a>
+      <div class="header-actions" style="margin-left: auto;">
+        <div class="save-status saved" role="status" aria-live="polite" aria-atomic="true">
+          <span>保存済み</span>
+        </div>
+        <button class="btn btn-secondary" id="shareBtn">
+          共有
+        </button>
+        <button class="btn btn-secondary" id="exportBtn" aria-describedby="exportHelp">
+          PDF出力
+        </button>
+        <button class="btn btn-secondary" id="deleteBtn" style="color: var(--error-color);">
+          削除
+        </button>
+      </div>
+    </header>
+
+    <main class="main-content full-width" id="mainContent" tabindex="-1" style="margin-left: 0; padding: 16px;">
+      <div class="editor-container">
+        <div class="editor-toolbar">
+          <a href="/notes" style="color: var(--text-secondary); text-decoration: none; margin-right: 12px;">&larr; 戻る</a>
+          <label class="visually-hidden" for="noteTitle">ノートのタイトル</label>
+          <input type="text" class="editor-title-input" id="noteTitle" placeholder="ノートのタイトル" autocomplete="off">
+          <label class="visually-hidden" for="notebookSelect">ノートブック</label>
+          <select id="notebookSelect" style="padding: 6px 10px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 0.875rem;">
+            <option value="">ノートブックを選択</option>
+          </select>
+        </div>
+        <p id="exportHelp" class="visually-hidden">PDF出力は準備完了後にダウンロードできます。</p>
+        <h1 class="visually-hidden">ノート編集</h1>
+
+        <div class="cornell-layout">
+          <div class="cornell-cue">
+            <div class="cornell-section-label"><span lang="en">Cue</span>（キーワード・質問）</div>
+            <label class="visually-hidden" for="cueArea">Cue</label>
+            <textarea class="cornell-textarea" id="cueArea" placeholder="キーワードや質問を記入..."></textarea>
+          </div>
+
+          <div class="cornell-notes">
+            <div class="cornell-section-label"><span lang="en">Notes</span>（メモ・本文）</div>
+            <label class="visually-hidden" for="notesArea">Notes</label>
+            <textarea class="cornell-textarea" id="notesArea" placeholder="講義や読書のメモを記入..."></textarea>
+          </div>
+
+          <div class="cornell-summary">
+            <div class="cornell-section-label"><span lang="en">Summary</span>（要約）</div>
+            <label class="visually-hidden" for="summaryArea">Summary</label>
+            <textarea class="cornell-textarea" id="summaryArea" placeholder="内容を自分の言葉で要約..." style="height: 80px;"></textarea>
+          </div>
+        </div>
+
+        <div style="padding: 12px 16px; border-top: 1px solid var(--border-color); display: flex; align-items: center; gap: 8px;">
+          <label for="tagInput" style="font-size: 0.75rem; color: var(--text-secondary);">タグ:</label>
+          <div id="tagContainer" style="display: flex; gap: 4px; flex-wrap: wrap;"></div>
+          <input type="text" id="tagInput" class="tag-input" placeholder="タグを追加" style="border: 1px solid transparent; font-size: 0.875rem; padding: 4px;">
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div id="statusRegion" class="visually-hidden" role="status" aria-live="polite"></div>
+  <div id="alertRegion" class="visually-hidden" role="alert" aria-live="assertive"></div>
+
+  <div id="shareModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="shareModalTitle">
+    <div class="modal" tabindex="-1">
+      <h3 class="modal-title" id="shareModalTitle">共有リンクを作成</h3>
+      <div class="modal-body">
+        <p style="margin-bottom: 12px;">このノートの共有リンクを作成しますか？リンクを知っている人は誰でも閲覧できます。</p>
+        <div id="shareLinkContainer" class="hidden">
+          <label class="visually-hidden" for="shareLink">共有リンク</label>
+          <input type="text" id="shareLink" class="form-input" readonly style="margin-bottom: 8px;">
+          <button class="btn btn-secondary btn-full" id="copyLinkBtn">リンクをコピー</button>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" id="closeShareModal">キャンセル</button>
+        <button class="btn btn-primary" id="createShareLink">リンクを作成</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="deleteModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="deleteModalTitle">
+    <div class="modal" tabindex="-1">
+      <h3 class="modal-title" id="deleteModalTitle">ノートを削除</h3>
+      <div class="modal-body">
+        このノートを削除しますか？この操作は取り消せません。
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" id="cancelDelete">キャンセル</button>
+        <button class="btn btn-danger" id="confirmDelete">削除する</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/app.js"></script>
+  <script>
+    const { api, ui, navigateTo, requireAuth, getUrlParam, AutoSave } = CornellApp;
+
+    if (!requireAuth()) {
+    }
+
+    let currentNote = null;
+    let autoSave = null;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await loadNotebooks();
+      await loadNote();
+      setupAutoSave();
+      setupEventListeners();
+    });
+
+    async function loadNotebooks() {
+      const data = await api.getNotebooks();
+      const select = document.getElementById('notebookSelect');
+
+      if (data && data.notebooks) {
+        data.notebooks.forEach(nb => {
+          const option = document.createElement('option');
+          option.value = nb.notebookId;
+          option.textContent = nb.name;
+          select.appendChild(option);
+        });
+      }
+    }
+
+    async function loadNote() {
+      const noteId = getUrlParam('id');
+
+      if (noteId && noteId !== 'new') {
+        const note = await api.getNote(noteId.padStart(3, '0'));
+        if (note) {
+          currentNote = note;
+          document.getElementById('noteTitle').value = note.title;
+          document.getElementById('notebookSelect').value = note.notebookId || '';
+          document.getElementById('cueArea').value = note.cue || '';
+          document.getElementById('notesArea').value = note.notes || '';
+          document.getElementById('summaryArea').value = note.summary || '';
+          document.title = `${note.title} - Cornell Note`;
+
+          renderTags(note.tags || []);
+        }
+      } else {
+        currentNote = {
+          noteId: 'new',
+          title: '',
+          notebookId: '',
+          tags: [],
+          cue: '',
+          notes: '',
+          summary: ''
+        };
+      }
+    }
+
+    function renderTags(tags) {
+      const container = document.getElementById('tagContainer');
+      container.innerHTML = tags.map(tag => `
+        <span class="tag">
+          ${tag.name}
+          <button type="button" class="tag-remove" data-remove-tag="${tag.tagId}" aria-label="${tag.name} を削除">×</button>
+        </span>
+      `).join('');
+    }
+
+    function setupAutoSave() {
+      autoSave = new AutoSave(async () => {
+        console.log('Auto-saving...', {
+          title: document.getElementById('noteTitle').value,
+          cue: document.getElementById('cueArea').value,
+          notes: document.getElementById('notesArea').value,
+          summary: document.getElementById('summaryArea').value
+        });
+      }, 1500);
+    }
+
+    function setupEventListeners() {
+      ['noteTitle', 'cueArea', 'notesArea', 'summaryArea'].forEach(id => {
+        document.getElementById(id).addEventListener('input', () => {
+          autoSave.trigger();
+        });
+      });
+
+      const tagInput = document.getElementById('tagInput');
+      tagInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && tagInput.value.trim()) {
+          e.preventDefault();
+          const tagName = tagInput.value.trim();
+          if (!currentNote.tags) currentNote.tags = [];
+          if (!currentNote.tags.some(t => t.name === tagName)) {
+            currentNote.tags.push({
+              tagId: `tag-${Date.now()}`,
+              name: tagName
+            });
+            renderTags(currentNote.tags);
+          }
+          tagInput.value = '';
+          autoSave.trigger();
+        }
+      });
+
+      document.getElementById('tagContainer').addEventListener('click', (e) => {
+        const removeTagId = e.target.dataset.removeTag;
+        if (removeTagId) {
+          currentNote.tags = currentNote.tags.filter(t => t.tagId !== removeTagId);
+          renderTags(currentNote.tags);
+          autoSave.trigger();
+        }
+      });
+
+      const shareModal = document.getElementById('shareModal');
+      const deleteModal = document.getElementById('deleteModal');
+
+      document.getElementById('shareBtn').addEventListener('click', () => {
+        ui.openModal(shareModal, document.getElementById('closeShareModal'));
+        ui.announceStatus('共有リンク作成モーダルを開きました');
+      });
+
+      document.getElementById('closeShareModal').addEventListener('click', () => {
+        ui.closeModal(shareModal);
+      });
+
+      document.getElementById('createShareLink').addEventListener('click', () => {
+        const shareUrl = `${window.location.origin}/share?token=abc123`;
+        document.getElementById('shareLink').value = shareUrl;
+        document.getElementById('shareLinkContainer').classList.remove('hidden');
+        document.getElementById('createShareLink').classList.add('hidden');
+        ui.announceStatus('共有リンクを作成しました');
+      });
+
+      document.getElementById('copyLinkBtn').addEventListener('click', async () => {
+        const linkInput = document.getElementById('shareLink');
+        linkInput.select();
+        try {
+          await navigator.clipboard.writeText(linkInput.value);
+          ui.showToast('リンクをコピーしました', 'success');
+        } catch (error) {
+          document.execCommand('copy');
+          ui.showToast('リンクをコピーしました', 'success');
+        }
+      });
+
+      document.getElementById('exportBtn').addEventListener('click', () => {
+        ui.showToast('PDF生成を開始しました。完了するとダウンロードできます。', 'info');
+        ui.announceStatus('PDF生成を開始しました');
+        setTimeout(() => {
+          ui.showToast('PDFの準備ができました', 'success');
+          ui.announceStatus('PDFの準備ができました');
+        }, 2000);
+      });
+
+      document.getElementById('deleteBtn').addEventListener('click', () => {
+        ui.openModal(deleteModal, document.getElementById('cancelDelete'));
+        ui.announceStatus('削除確認モーダルを開きました');
+      });
+
+      document.getElementById('cancelDelete').addEventListener('click', () => {
+        ui.closeModal(deleteModal);
+      });
+
+      document.getElementById('confirmDelete').addEventListener('click', () => {
+        ui.showToast('ノートを削除しました', 'success');
+        ui.announceStatus('ノートを削除しました');
+        setTimeout(() => navigateTo('/notes'), 500);
+      });
+
+      document.querySelectorAll('.modal-overlay').forEach(overlay => {
+        overlay.addEventListener('click', (e) => {
+          if (e.target === overlay) {
+            ui.closeModal(overlay);
+          }
+        });
+      });
+
+      document.getElementById('notebookSelect').addEventListener('change', () => {
+        autoSave.trigger();
+      });
+    }
+  </script>
+</body>
+</html>

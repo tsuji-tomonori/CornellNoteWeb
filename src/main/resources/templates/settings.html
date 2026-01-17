@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>設定 - Cornell Note</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <a href="#mainContent" class="skip-link">本文へスキップ</a>
+  <div class="app-container">
+    <header class="header">
+      <a href="/notes" class="header-logo">Cornell Note</a>
+      <div class="header-actions" style="margin-left: auto;">
+        <button type="button" class="header-user" id="userMenu" aria-haspopup="true" aria-expanded="false" aria-controls="userDropdown" aria-label="ユーザーメニュー">
+          <div class="user-avatar" id="userAvatar">D</div>
+          <span id="userName">Demo User</span>
+        </button>
+      </div>
+    </header>
+
+    <aside class="sidebar">
+      <div class="sidebar-section">
+        <a href="/notes" class="sidebar-item">
+          <span class="sidebar-item-icon">&#128196;</span>
+          ノート
+        </a>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-title">設定</div>
+        <a href="#profile" class="sidebar-item active">
+          <span class="sidebar-item-icon">&#128100;</span>
+          プロフィール
+        </a>
+        <a href="#account" class="sidebar-item">
+          <span class="sidebar-item-icon">&#128274;</span>
+          アカウント
+        </a>
+      </div>
+
+      <div class="sidebar-section" style="margin-top: auto;">
+        <a href="#" class="sidebar-item" id="logoutBtn">
+          <span class="sidebar-item-icon">&#10140;</span>
+          ログアウト
+        </a>
+      </div>
+    </aside>
+
+    <main class="main-content" id="mainContent" tabindex="-1">
+      <div class="settings-container">
+        <h1 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 24px;">設定</h1>
+
+        <section id="profile" class="settings-section">
+          <h2 class="settings-section-title">プロフィール</h2>
+
+          <form id="profileForm">
+            <div class="form-group">
+              <label class="form-label" for="displayName">表示名</label>
+              <input type="text" id="displayName" class="form-input" placeholder="表示名を入力" autocomplete="name">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="email">メールアドレス</label>
+              <input type="email" id="email" class="form-input" readonly style="background: var(--background-color);" autocomplete="email">
+            </div>
+
+            <button type="submit" class="btn btn-primary">変更を保存</button>
+          </form>
+        </section>
+
+        <section id="account" class="settings-section">
+          <h2 class="settings-section-title">パスワード変更</h2>
+
+          <form id="passwordForm">
+            <div class="form-group">
+              <label class="form-label" for="currentPassword">現在のパスワード</label>
+              <input type="password" id="currentPassword" class="form-input" placeholder="現在のパスワード" autocomplete="current-password">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="newPassword">新しいパスワード</label>
+              <input type="password" id="newPassword" class="form-input" placeholder="新しいパスワード（8文字以上）" autocomplete="new-password">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="confirmPassword">新しいパスワード（確認）</label>
+              <input type="password" id="confirmPassword" class="form-input" placeholder="新しいパスワードを再入力" autocomplete="new-password">
+            </div>
+
+            <button type="submit" class="btn btn-primary">パスワードを変更</button>
+          </form>
+        </section>
+
+        <section class="settings-section danger-zone">
+          <h2 class="settings-section-title">危険な操作</h2>
+
+          <div class="settings-item">
+            <div>
+              <div class="settings-item-label">アカウントを削除</div>
+              <div class="settings-item-description">アカウントとすべてのデータが完全に削除されます。この操作は取り消せません。</div>
+            </div>
+            <button class="btn btn-danger" id="deleteAccountBtn">アカウントを削除</button>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <div id="statusRegion" class="visually-hidden" role="status" aria-live="polite"></div>
+  <div id="alertRegion" class="visually-hidden" role="alert" aria-live="assertive"></div>
+
+  <div id="deleteAccountModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="deleteAccountModalTitle">
+    <div class="modal" tabindex="-1">
+      <h3 class="modal-title" id="deleteAccountModalTitle" style="color: var(--error-color);">アカウントを削除しますか？</h3>
+      <div class="modal-body">
+        <p style="margin-bottom: 16px;">この操作を実行すると、以下のデータが完全に削除されます：</p>
+        <ul style="margin-left: 20px; margin-bottom: 16px; color: var(--text-secondary);">
+          <li>すべてのノート</li>
+          <li>すべてのノートブックとタグ</li>
+          <li>共有リンク</li>
+          <li>アカウント情報</li>
+        </ul>
+        <p style="font-weight: 500;">確認のため、「削除する」と入力してください：</p>
+        <label class="visually-hidden" for="deleteConfirmInput">削除確認入力</label>
+        <input type="text" id="deleteConfirmInput" class="form-input" placeholder="削除する" style="margin-top: 8px;">
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" id="cancelDeleteAccount">キャンセル</button>
+        <button class="btn btn-danger" id="confirmDeleteAccount" disabled>アカウントを削除</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="userDropdown" class="hidden" role="menu" aria-label="ユーザーメニュー" style="position: fixed; background: white; border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); padding: 8px 0; min-width: 160px; z-index: 150;">
+    <a href="/settings" role="menuitem" style="display: block; padding: 8px 16px; color: var(--text-primary); text-decoration: none; font-size: 0.875rem;">設定</a>
+    <a href="#" id="dropdownLogout" role="menuitem" style="display: block; padding: 8px 16px; color: var(--error-color); text-decoration: none; font-size: 0.875rem;">ログアウト</a>
+  </div>
+
+  <script src="/js/app.js"></script>
+  <script>
+    const { storage, ui, navigateTo, requireAuth, logout } = CornellApp;
+
+    if (!requireAuth()) {
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadUserInfo();
+      setupEventListeners();
+    });
+
+    function loadUserInfo() {
+      const session = storage.getSession();
+      if (session) {
+        document.getElementById('userName').textContent = session.displayName || session.email;
+        document.getElementById('userAvatar').textContent = (session.displayName || session.email).charAt(0).toUpperCase();
+        document.getElementById('displayName').value = session.displayName || '';
+        document.getElementById('email').value = session.email;
+      }
+    }
+
+    function setupEventListeners() {
+      document.getElementById('profileForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const displayName = document.getElementById('displayName').value;
+
+        const session = storage.getSession();
+        session.displayName = displayName;
+        storage.setSession(session);
+
+        ui.showToast('プロフィールを更新しました', 'success');
+        ui.announceStatus('プロフィールを更新しました');
+        loadUserInfo();
+      });
+
+      document.getElementById('passwordForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const currentPassword = document.getElementById('currentPassword').value;
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+
+        if (!currentPassword || !newPassword || !confirmPassword) {
+          ui.showToast('すべての項目を入力してください', 'error');
+          ui.announceStatus('パスワード変更: 必須項目が不足しています', 'alert');
+          return;
+        }
+
+        if (newPassword.length < 8) {
+          ui.showToast('パスワードは8文字以上で入力してください', 'error');
+          ui.announceStatus('パスワード変更: 8文字以上で入力してください', 'alert');
+          return;
+        }
+
+        if (newPassword !== confirmPassword) {
+          ui.showToast('新しいパスワードが一致しません', 'error');
+          ui.announceStatus('パスワード変更: 新しいパスワードが一致しません', 'alert');
+          return;
+        }
+
+        ui.showToast('パスワードを変更しました', 'success');
+        ui.announceStatus('パスワードを変更しました');
+        document.getElementById('passwordForm').reset();
+      });
+
+      const deleteAccountModal = document.getElementById('deleteAccountModal');
+
+      document.getElementById('deleteAccountBtn').addEventListener('click', () => {
+        ui.openModal(deleteAccountModal, document.getElementById('deleteConfirmInput'));
+        document.getElementById('deleteConfirmInput').value = '';
+        document.getElementById('confirmDeleteAccount').disabled = true;
+      });
+
+      document.getElementById('cancelDeleteAccount').addEventListener('click', () => {
+        ui.closeModal(deleteAccountModal);
+      });
+
+      document.getElementById('deleteConfirmInput').addEventListener('input', (e) => {
+        document.getElementById('confirmDeleteAccount').disabled = e.target.value !== '削除する';
+      });
+
+      document.getElementById('confirmDeleteAccount').addEventListener('click', () => {
+        storage.clearSession();
+        ui.showToast('アカウントを削除しました', 'success');
+        ui.announceStatus('アカウントを削除しました');
+        setTimeout(() => navigateTo('/login'), 1000);
+      });
+
+      document.getElementById('deleteAccountModal').addEventListener('click', (e) => {
+        if (e.target.id === 'deleteAccountModal') {
+          ui.closeModal(deleteAccountModal);
+        }
+      });
+
+      document.getElementById('logoutBtn').addEventListener('click', (e) => {
+        e.preventDefault();
+        logout();
+      });
+
+      document.getElementById('dropdownLogout').addEventListener('click', (e) => {
+        e.preventDefault();
+        logout();
+      });
+
+      const userMenu = document.getElementById('userMenu');
+      const userDropdown = document.getElementById('userDropdown');
+
+      userMenu.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const rect = userMenu.getBoundingClientRect();
+        userDropdown.style.top = `${rect.bottom + 8}px`;
+        userDropdown.style.right = `${window.innerWidth - rect.right}px`;
+        const isHidden = userDropdown.classList.toggle('hidden');
+        userMenu.setAttribute('aria-expanded', (!isHidden).toString());
+        if (!isHidden) {
+          userDropdown.querySelector('a')?.focus();
+        }
+      });
+
+      userMenu.addEventListener('keydown', (e) => {
+        if (e.key !== 'Enter' && e.key !== ' ') return;
+        e.preventDefault();
+        userMenu.click();
+      });
+
+      document.addEventListener('click', () => {
+        userDropdown.classList.add('hidden');
+        userMenu.setAttribute('aria-expanded', 'false');
+      });
+
+      document.querySelectorAll('.sidebar-item[href^="#"]').forEach(item => {
+        item.addEventListener('click', () => {
+          document.querySelectorAll('.sidebar-item[href^="#"]').forEach(i => i.classList.remove('active'));
+          item.classList.add('active');
+        });
+      });
+    }
+  </script>
+</body>
+</html>
