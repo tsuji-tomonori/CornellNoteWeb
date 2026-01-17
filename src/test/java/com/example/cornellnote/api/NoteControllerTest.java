@@ -1,130 +1,173 @@
 package com.example.cornellnote.api;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.example.cornellnote.api.dto.CreateNoteRequest;
-import com.example.cornellnote.api.dto.NoteResponse;
 import com.example.cornellnote.api.dto.UpdateNoteRequest;
-import com.example.cornellnote.api.service.NoteService;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.example.cornellnote.api.support.ApiTestSupport;
 import com.github.database.rider.core.api.configuration.DBUnit;
 import com.github.database.rider.core.api.configuration.Orthography;
 import com.github.database.rider.core.api.dataset.DataSet;
 import com.github.database.rider.spring.api.DBRider;
 import java.sql.Connection;
-import java.util.List;
-import java.util.Map;
 import javax.sql.DataSource;
+import org.assertj.core.api.Assertions;
 import org.dbunit.database.DatabaseConnection;
 import org.dbunit.database.IDatabaseConnection;
 import org.dbunit.dataset.ITable;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.skyscreamer.jsonassert.JSONAssert;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.datasource.DataSourceUtils;
+import java.nio.charset.StandardCharsets;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @SpringBootTest
+@AutoConfigureMockMvc
 @ActiveProfiles("test")
 @DBRider
 @DBUnit(disableSequenceFiltering = true, caseInsensitiveStrategy = Orthography.LOWERCASE, schema = "TEST")
-@Transactional
-class NoteControllerTest {
-  @Autowired
-  private NoteService noteService;
-
-  @Autowired
-  private ObjectMapper objectMapper;
-
+class NoteControllerTest extends ApiTestSupport {
   @Autowired
   private DataSource dataSource;
 
   @Test
-  @DisplayName("UT-NOTE-001 createNote() should persist note")
+  @DisplayName("UT-NOTE-007 listNotes should return summaries")
+  @DataSet(value = "datasets/note-list.yml", disableConstraints = true)
+  void listNotes_shouldReturnSummaries() throws Exception {
+    String response = mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/api/notes")
+            .sessionAttr("userId", "11111111-1111-1111-1111-111111111111")
+            .accept(org.springframework.http.MediaType.APPLICATION_JSON))
+        .andExpect(MockMvcResultMatchers.status().isOk())
+        .andExpect(MockMvcResultMatchers.content().contentType("application/json"))
+        .andReturn()
+        .getResponse()
+        .getContentAsString(StandardCharsets.UTF_8);
+
+    assertResponseMatches("expected/notes-list.json", response);
+  }
+
+  @Test
+  @DisplayName("UT-NOTE-001 createNote should persist note")
   @DataSet(value = "datasets/note-create.yml", disableConstraints = true)
   void createNote_shouldPersistNote() throws Exception {
-    // Arrange
     CreateNoteRequest request = new CreateNoteRequest(
         "新規ノート",
         "Cue",
         "Notes",
         "Summary",
         "22222222-2222-2222-2222-222222222222",
-        List.of()
+        java.util.List.of()
     );
 
-    // Act
-    NoteResponse response = noteService.createNote(request);
-    String responseJson = objectMapper.writeValueAsString(response);
+    String response = mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post("/api/notes")
+            .sessionAttr("userId", "11111111-1111-1111-1111-111111111111")
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(request))
+            .accept(org.springframework.http.MediaType.APPLICATION_JSON))
+        .andExpect(MockMvcResultMatchers.status().isCreated())
+        .andExpect(MockMvcResultMatchers.content().contentType("application/json"))
+        .andReturn()
+        .getResponse()
+        .getContentAsString(StandardCharsets.UTF_8);
 
-    // Assert
-    JSONAssert.assertEquals(
-        objectMapper.writeValueAsString(Map.of(
-            "noteId", response.noteId(),
-            "title", "新規ノート",
-            "cue", "Cue",
-            "notes", "Notes",
-            "summary", "Summary",
-            "notebookId", "22222222-2222-2222-2222-222222222222",
-            "tags", List.of(),
-            "createdAt", response.createdAt(),
-            "updatedAt", response.updatedAt()
-        )),
-        responseJson,
-        false
-    );
+    assertResponseMatches("expected/notes-create.json", response);
 
     Connection connection = DataSourceUtils.getConnection(dataSource);
     try {
       IDatabaseConnection dbUnitConnection = new DatabaseConnection(connection, "TEST");
       ITable table = dbUnitConnection.createDataSet().getTable("notes");
-      assertThat(table.getRowCount()).isEqualTo(1);
+      Assertions.assertThat(table.getRowCount()).isEqualTo(1);
     } finally {
       DataSourceUtils.releaseConnection(connection, dataSource);
     }
   }
 
   @Test
-  @DisplayName("UT-NOTE-002 updateNote() should update cue")
-  @DataSet(value = "datasets/note-existing.yml", disableConstraints = true)
-  void updateNote_shouldUpdateCue() throws Exception {
-    // Arrange
+  @DisplayName("UT-NOTE-009 getNote should return note")
+  @DataSet(value = "datasets/note-get.yml", disableConstraints = true)
+  void getNote_shouldReturnNote() throws Exception {
+    String response = mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/api/notes/{noteId}", "11111111-2222-3333-4444-555555555555")
+            .sessionAttr("userId", "11111111-1111-1111-1111-111111111111")
+            .accept(org.springframework.http.MediaType.APPLICATION_JSON))
+        .andExpect(MockMvcResultMatchers.status().isOk())
+        .andExpect(MockMvcResultMatchers.content().contentType("application/json"))
+        .andReturn()
+        .getResponse()
+        .getContentAsString(StandardCharsets.UTF_8);
+
+    assertResponseMatches("expected/notes-get.json", response);
+  }
+
+  @Test
+  @DisplayName("UT-NOTE-002 updateNote should update fields")
+  @DataSet(value = "datasets/note-update.yml", disableConstraints = true)
+  void updateNote_shouldUpdateFields() throws Exception {
     UpdateNoteRequest request = new UpdateNoteRequest(
-        null,
+        "更新タイトル",
         "更新Cue",
+        "更新Notes",
+        "更新Summary",
         null,
-        null,
-        null,
-        null
+        java.util.List.of("99999999-9999-9999-9999-999999999999")
     );
 
-    // Act
-    NoteResponse response = noteService.updateNote("33333333-3333-3333-3333-333333333333", request);
-    String responseJson = objectMapper.writeValueAsString(response);
+    String response = mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put("/api/notes/{noteId}", "33333333-3333-3333-3333-333333333333")
+            .sessionAttr("userId", "11111111-1111-1111-1111-111111111111")
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(request))
+            .accept(org.springframework.http.MediaType.APPLICATION_JSON))
+        .andExpect(MockMvcResultMatchers.status().isOk())
+        .andExpect(MockMvcResultMatchers.content().contentType("application/json"))
+        .andReturn()
+        .getResponse()
+        .getContentAsString(StandardCharsets.UTF_8);
 
-    // Assert
-    JSONAssert.assertEquals(
-        objectMapper.writeValueAsString(Map.of(
-            "noteId", "33333333-3333-3333-3333-333333333333",
-            "title", "初期ノート",
-            "cue", "更新Cue",
-            "notes", "既存の本文",
-            "summary", "既存の要約",
-            "notebookId", "22222222-2222-2222-2222-222222222222",
-            "tags", List.of(
-                Map.of("tagId", "55555555-5555-5555-5555-555555555555", "name", "重要")
-            ),
-            "createdAt", response.createdAt(),
-            "updatedAt", response.updatedAt()
-        )),
-        responseJson,
-        false
-    );
+    assertResponseMatches("expected/notes-update.json", response);
+  }
 
-    NoteResponse refreshed = noteService.getNote("33333333-3333-3333-3333-333333333333");
-    assertThat(refreshed.cue()).isEqualTo("更新Cue");
+  @Test
+  @DisplayName("UT-NOTE-012 deleteNote should return no content")
+  @DataSet(value = "datasets/note-delete.yml", disableConstraints = true)
+  void deleteNote_shouldReturnNoContent() throws Exception {
+    mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete("/api/notes/{noteId}", "33333333-3333-3333-3333-333333333333")
+            .sessionAttr("userId", "11111111-1111-1111-1111-111111111111")
+            .accept(org.springframework.http.MediaType.APPLICATION_JSON))
+        .andExpect(MockMvcResultMatchers.status().isNoContent())
+        .andExpect(MockMvcResultMatchers.content().string(""));
+  }
+
+  @Test
+  @DisplayName("UT-NOTE-013 getNoteContent should return content")
+  @DataSet(value = "datasets/note-get.yml", disableConstraints = true)
+  void getNoteContent_shouldReturnContent() throws Exception {
+    String response = mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/api/notes/{noteId}/content", "11111111-2222-3333-4444-555555555555")
+            .sessionAttr("userId", "11111111-1111-1111-1111-111111111111")
+            .accept(org.springframework.http.MediaType.APPLICATION_JSON))
+        .andExpect(MockMvcResultMatchers.status().isOk())
+        .andExpect(MockMvcResultMatchers.content().contentType("application/json"))
+        .andReturn()
+        .getResponse()
+        .getContentAsString(StandardCharsets.UTF_8);
+
+    assertResponseMatches("expected/notes-content.json", response);
+  }
+
+  @Test
+  @DisplayName("UT-NOTE-010 getNote should return not found")
+  @DataSet(value = "datasets/note-get.yml", disableConstraints = true)
+  void getNote_shouldReturnNotFound() throws Exception {
+    String response = mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/api/notes/{noteId}", "99999999-9999-9999-9999-999999999999")
+            .sessionAttr("userId", "11111111-1111-1111-1111-111111111111")
+            .accept(org.springframework.http.MediaType.APPLICATION_JSON))
+        .andExpect(MockMvcResultMatchers.status().isNotFound())
+        .andExpect(MockMvcResultMatchers.header().exists("X-Trace-Id"))
+        .andExpect(MockMvcResultMatchers.content().contentType("application/json"))
+        .andReturn()
+        .getResponse()
+        .getContentAsString(StandardCharsets.UTF_8);
+
+    assertResponseMatches("expected/error-not-found.json", response);
   }
 }

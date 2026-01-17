@@ -1,0 +1,11 @@
+{
+  "noteId": "${json-unit.ignore}",
+  "title": "新規ノート",
+  "cue": "Cue",
+  "notes": "Notes",
+  "summary": "Summary",
+  "notebookId": "22222222-2222-2222-2222-222222222222",
+  "tags": [],
+  "createdAt": "${json-unit.ignore}",
+  "updatedAt": "${json-unit.ignore}"
+}

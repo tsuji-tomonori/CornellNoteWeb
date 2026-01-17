@@ -1,0 +1,5 @@
+{
+  "code": "UNAUTHORIZED",
+  "message": "User session not found",
+  "traceId": "${json-unit.ignore}"
+}

@@ -1,0 +1,5 @@
+{
+  "code": "NOT_FOUND",
+  "message": "Shared note not found",
+  "traceId": "${json-unit.ignore}"
+}

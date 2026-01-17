@@ -1,0 +1,8 @@
+{
+  "exportId": "exp-001",
+  "noteId": "note-001",
+  "status": "completed",
+  "downloadUrl": "http://localhost:3000/mock/export/sample.pdf",
+  "createdAt": "${json-unit.ignore}",
+  "updatedAt": "${json-unit.ignore}"
+}

@@ -1,7 +1,9 @@
 package com.example.cornellnote.api.controller;
 
 import com.example.cornellnote.api.dto.TagResponse;
+import com.example.cornellnote.api.error.UnauthorizedException;
 import com.example.cornellnote.api.service.TagService;
+import jakarta.servlet.http.HttpSession;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,7 +20,11 @@ public class TagController {
   }
 
   @GetMapping
-  public ResponseEntity<List<TagResponse>> listTags() {
-    return ResponseEntity.ok(tagService.listTags("user-001"));
+  public ResponseEntity<List<TagResponse>> listTags(HttpSession session) {
+    String userId = session.getAttribute("userId") instanceof String id ? id : null;
+    if (userId == null || userId.isBlank()) {
+      throw new UnauthorizedException("User session not found");
+    }
+    return ResponseEntity.ok(tagService.listTags(userId));
   }
 }
