@@ -1,0 +1,700 @@
+openapi: 3.1.0
+info:
+  title: CornellNote API
+  version: 1.0.0
+  description: CornellNote Web API specification.
+servers:
+  - url: https://api.example.com
+    description: Production
+  - url: http://localhost:3000
+    description: Local development
+security:
+  - SessionCookie: []
+tags:
+  - name: Auth
+    description: Authentication
+  - name: Notes
+    description: Note operations
+  - name: Search
+    description: Search
+  - name: Export
+    description: Export and print
+  - name: Share
+    description: Share links
+  - name: Account
+    description: Account management
+paths:
+  /auth/signup:
+    post:
+      tags: [Auth]
+      summary: Sign up with email
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AuthCredentials"
+      responses:
+        "201":
+          description: Signed up and logged in
+          headers:
+            X-Trace-Id:
+              $ref: "#/components/headers/TraceId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthSession"
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "500": { $ref: "#/components/responses/InternalError" }
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Login with email
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AuthCredentials"
+      responses:
+        "200":
+          description: Logged in
+          headers:
+            X-Trace-Id:
+              $ref: "#/components/headers/TraceId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthSession"
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "500": { $ref: "#/components/responses/InternalError" }
+  /auth/logout:
+    post:
+      tags: [Auth]
+      summary: Logout
+      responses:
+        "204":
+          description: Logged out
+          headers:
+            X-Trace-Id:
+              $ref: "#/components/headers/TraceId"
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "500": { $ref: "#/components/responses/InternalError" }
+  /auth/password/reset:
+    post:
+      tags: [Auth]
+      summary: Request password reset
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PasswordResetRequest"
+      responses:
+        "202":
+          description: Reset email requested
+          headers:
+            X-Trace-Id:
+              $ref: "#/components/headers/TraceId"
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "500": { $ref: "#/components/responses/InternalError" }
+  /account:
+    delete:
+      tags: [Account]
+      summary: Delete account
+      responses:
+        "204":
+          description: Account deleted
+          headers:
+            X-Trace-Id:
+              $ref: "#/components/headers/TraceId"
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "500": { $ref: "#/components/responses/InternalError" }
+  /notes:
+    get:
+      tags: [Notes]
+      summary: List notes
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Offset"
+      responses:
+        "200":
+          description: Note list
+          headers:
+            X-Trace-Id:
+              $ref: "#/components/headers/TraceId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NoteList"
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "500": { $ref: "#/components/responses/InternalError" }
+    post:
+      tags: [Notes]
+      summary: Create note
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateNoteRequest"
+      responses:
+        "201":
+          description: Note created
+          headers:
+            X-Trace-Id:
+              $ref: "#/components/headers/TraceId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Note"
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "500": { $ref: "#/components/responses/InternalError" }
+  /notes/{noteId}:
+    parameters:
+      - $ref: "#/components/parameters/NoteId"
+    get:
+      tags: [Notes]
+      summary: Get note
+      responses:
+        "200":
+          description: Note detail
+          headers:
+            X-Trace-Id:
+              $ref: "#/components/headers/TraceId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Note"
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "500": { $ref: "#/components/responses/InternalError" }
+    put:
+      tags: [Notes]
+      summary: Update note
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateNoteRequest"
+      responses:
+        "200":
+          description: Note updated
+          headers:
+            X-Trace-Id:
+              $ref: "#/components/headers/TraceId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Note"
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "500": { $ref: "#/components/responses/InternalError" }
+    delete:
+      tags: [Notes]
+      summary: Delete note
+      responses:
+        "204":
+          description: Note deleted
+          headers:
+            X-Trace-Id:
+              $ref: "#/components/headers/TraceId"
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "500": { $ref: "#/components/responses/InternalError" }
+  /notes/{noteId}/content:
+    get:
+      tags: [Notes]
+      summary: Get note content
+      parameters:
+        - $ref: "#/components/parameters/NoteId"
+      responses:
+        "200":
+          description: Note content
+          headers:
+            X-Trace-Id:
+              $ref: "#/components/headers/TraceId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NoteContent"
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "500": { $ref: "#/components/responses/InternalError" }
+  /search:
+    get:
+      tags: [Search]
+      summary: Search notes
+      parameters:
+        - name: q
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Keyword
+        - name: tagId
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Tag ID filter
+        - name: notebookId
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Notebook ID filter
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Offset"
+      responses:
+        "200":
+          description: Search results
+          headers:
+            X-Trace-Id:
+              $ref: "#/components/headers/TraceId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NoteList"
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "500": { $ref: "#/components/responses/InternalError" }
+  /notes/{noteId}/export/pdf:
+    post:
+      tags: [Export]
+      summary: Request PDF export
+      parameters:
+        - $ref: "#/components/parameters/NoteId"
+      responses:
+        "202":
+          description: Export job created
+          headers:
+            X-Trace-Id:
+              $ref: "#/components/headers/TraceId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExportJob"
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "500": { $ref: "#/components/responses/InternalError" }
+  /exports/{exportId}:
+    get:
+      tags: [Export]
+      summary: Get export status
+      parameters:
+        - $ref: "#/components/parameters/ExportId"
+      responses:
+        "200":
+          description: Export job
+          headers:
+            X-Trace-Id:
+              $ref: "#/components/headers/TraceId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExportJob"
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "500": { $ref: "#/components/responses/InternalError" }
+  /notes/{noteId}/share:
+    post:
+      tags: [Share]
+      summary: Create share link
+      parameters:
+        - $ref: "#/components/parameters/NoteId"
+      responses:
+        "201":
+          description: Share link created
+          headers:
+            X-Trace-Id:
+              $ref: "#/components/headers/TraceId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShareLink"
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "500": { $ref: "#/components/responses/InternalError" }
+  /share/{shareToken}:
+    parameters:
+      - $ref: "#/components/parameters/ShareToken"
+    get:
+      tags: [Share]
+      summary: Get shared note
+      security: []
+      responses:
+        "200":
+          description: Shared note
+          headers:
+            X-Trace-Id:
+              $ref: "#/components/headers/TraceId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublicNote"
+        "404": { $ref: "#/components/responses/NotFound" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "500": { $ref: "#/components/responses/InternalError" }
+    delete:
+      tags: [Share]
+      summary: Revoke share link
+      responses:
+        "204":
+          description: Share link revoked
+          headers:
+            X-Trace-Id:
+              $ref: "#/components/headers/TraceId"
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "500": { $ref: "#/components/responses/InternalError" }
+components:
+  securitySchemes:
+    SessionCookie:
+      type: apiKey
+      in: cookie
+      name: sessionId
+      description: Session cookie issued on login.
+  headers:
+    TraceId:
+      description: Correlation ID for audit logs.
+      schema:
+        type: string
+  parameters:
+    NoteId:
+      name: noteId
+      in: path
+      required: true
+      schema:
+        type: string
+    ExportId:
+      name: exportId
+      in: path
+      required: true
+      schema:
+        type: string
+    ShareToken:
+      name: shareToken
+      in: path
+      required: true
+      schema:
+        type: string
+    Limit:
+      name: limit
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+      description: Page size
+    Offset:
+      name: offset
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+      description: Page offset
+  responses:
+    BadRequest:
+      description: Bad request
+      headers:
+        X-Trace-Id:
+          $ref: "#/components/headers/TraceId"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    Unauthorized:
+      description: Unauthorized
+      headers:
+        X-Trace-Id:
+          $ref: "#/components/headers/TraceId"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    Forbidden:
+      description: Forbidden
+      headers:
+        X-Trace-Id:
+          $ref: "#/components/headers/TraceId"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    NotFound:
+      description: Not found
+      headers:
+        X-Trace-Id:
+          $ref: "#/components/headers/TraceId"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    Conflict:
+      description: Conflict
+      headers:
+        X-Trace-Id:
+          $ref: "#/components/headers/TraceId"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    RateLimited:
+      description: Rate limited
+      headers:
+        X-Trace-Id:
+          $ref: "#/components/headers/TraceId"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    InternalError:
+      description: Internal server error
+      headers:
+        X-Trace-Id:
+          $ref: "#/components/headers/TraceId"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+  schemas:
+    AuthCredentials:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+    PasswordResetRequest:
+      type: object
+      required: [email]
+      properties:
+        email:
+          type: string
+          format: email
+    AuthSession:
+      type: object
+      required: [userId, email]
+      properties:
+        userId:
+          type: string
+        email:
+          type: string
+          format: email
+    ErrorResponse:
+      type: object
+      required: [code, message, traceId]
+      properties:
+        code:
+          type: string
+          enum:
+            - BAD_REQUEST
+            - UNAUTHORIZED
+            - FORBIDDEN
+            - NOT_FOUND
+            - CONFLICT
+            - RATE_LIMITED
+            - INTERNAL_ERROR
+        message:
+          type: string
+        traceId:
+          type: string
+    Tag:
+      type: object
+      required: [tagId, name]
+      properties:
+        tagId:
+          type: string
+        name:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    Notebook:
+      type: object
+      required: [notebookId, name]
+      properties:
+        notebookId:
+          type: string
+        name:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    Note:
+      type: object
+      required: [noteId, title, cue, notes, summary, createdAt, updatedAt]
+      properties:
+        noteId:
+          type: string
+        title:
+          type: string
+        cue:
+          type: string
+        notes:
+          type: string
+        summary:
+          type: string
+        notebookId:
+          type: string
+        tags:
+          type: array
+          items:
+            $ref: "#/components/schemas/Tag"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    NoteSummary:
+      type: object
+      required: [noteId, title, updatedAt]
+      properties:
+        noteId:
+          type: string
+        title:
+          type: string
+        notebookId:
+          type: string
+        tags:
+          type: array
+          items:
+            $ref: "#/components/schemas/Tag"
+        updatedAt:
+          type: string
+          format: date-time
+    NoteContent:
+      type: object
+      required: [noteId, cue, notes, summary]
+      properties:
+        noteId:
+          type: string
+        cue:
+          type: string
+        notes:
+          type: string
+        summary:
+          type: string
+    NoteList:
+      type: object
+      required: [items, total, limit, offset]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/NoteSummary"
+        total:
+          type: integer
+        limit:
+          type: integer
+        offset:
+          type: integer
+    CreateNoteRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        cue:
+          type: string
+        notes:
+          type: string
+        summary:
+          type: string
+        notebookId:
+          type: string
+        tagIds:
+          type: array
+          items:
+            type: string
+    UpdateNoteRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        cue:
+          type: string
+        notes:
+          type: string
+        summary:
+          type: string
+        notebookId:
+          type: string
+        tagIds:
+          type: array
+          items:
+            type: string
+    ShareLink:
+      type: object
+      required: [shareToken, url, noteId]
+      properties:
+        shareToken:
+          type: string
+        url:
+          type: string
+          format: uri
+        noteId:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    PublicNote:
+      type: object
+      required: [noteId, title, cue, notes, summary]
+      properties:
+        noteId:
+          type: string
+        title:
+          type: string
+        cue:
+          type: string
+        notes:
+          type: string
+        summary:
+          type: string
+    ExportJob:
+      type: object
+      required: [exportId, noteId, status]
+      properties:
+        exportId:
+          type: string
+        noteId:
+          type: string
+        status:
+          type: string
+          enum: [pending, processing, completed, failed]
+        downloadUrl:
+          type: string
+          format: uri
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
