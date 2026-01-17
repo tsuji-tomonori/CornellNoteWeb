@@ -1,6 +1,10 @@
 plugins {
   id 'java'
   id 'jacoco'
+  id 'pmd'
+  id 'com.github.spotbugs' version '6.0.24'
+  id 'info.solidsoft.pitest' version '1.15.0'
+  id 'com.diffplug.spotless' version '6.25.0'
   id 'org.springframework.boot' version '3.2.2'
   id 'io.spring.dependency-management' version '1.1.4'
 }
@@ -71,6 +75,53 @@ tasks.named('jacocoTestCoverageVerification') {
   }
 }
 
+pmd {
+  toolVersion = '6.55.0'
+  ruleSets = []
+  ruleSetFiles = files('config/pmd/pmd.xml')
+}
+
+tasks.withType(Pmd) {
+  consoleOutput = true
+  ignoreFailures = false
+  reports {
+    xml.required = true
+    html.required = true
+  }
+}
+
+spotbugs {
+  toolVersion = '4.8.6'
+  effort = 'max'
+  reportLevel = 'low'
+}
+
+tasks.withType(com.github.spotbugs.snom.SpotBugsTask) {
+  reports {
+    xml.required = true
+    html.required = true
+  }
+}
+
+spotless {
+  java {
+    googleJavaFormat('1.22.0')
+    target 'src/main/java/**/*.java', 'src/test/java/**/*.java'
+  }
+}
+
+pitest {
+  pitestVersion = '1.15.0'
+  junit5PluginVersion = '1.2.1'
+  targetClasses = ['com.example.cornellnote.*']
+  targetTests = ['com.example.cornellnote.*']
+  threads = Runtime.runtime.availableProcessors()
+  outputFormats = ['HTML', 'XML']
+  timestampedReports = false
+}
+
 tasks.named('check') {
   dependsOn tasks.named('jacocoTestCoverageVerification')
+  dependsOn tasks.named('spotlessCheck')
+  dependsOn tasks.named('pitest')
 }

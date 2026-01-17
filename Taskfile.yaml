@@ -42,6 +42,11 @@ tasks:
     dir: /home/t-tsuji/project/CornellNoteWeb
     cmds:
       - ./gradlew check
+  backend:pitest:
+    desc: Run backend PIT mutation testing
+    dir: /home/t-tsuji/project/CornellNoteWeb
+    cmds:
+      - ./gradlew pitest
   backend:test:class:
     desc: Run single backend test class (CLASS=...)
     dir: /home/t-tsuji/project/CornellNoteWeb
