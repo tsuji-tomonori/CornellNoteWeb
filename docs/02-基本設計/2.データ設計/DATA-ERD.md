@@ -47,8 +47,8 @@ erDiagram
     datetime updatedAt
   }
   NOTE_TAG {
-    string noteId FK
-    string tagId FK
+    string noteId PK, FK
+    string tagId PK, FK
   }
   SHARE_TOKEN {
     string id PK
@@ -78,3 +78,4 @@ erDiagram
 ## 補足
 - contentRef/summaryRef/cueRef はObject Storage参照
 - errorMessageは失敗時のみ保存
+- NOTE_TAG は noteId + tagId の一意制約を持つ
