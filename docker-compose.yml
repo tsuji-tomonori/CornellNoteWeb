@@ -1,0 +1,48 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: cornell_note
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "15432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d cornell_note"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  migrate:
+    image: postgres:16
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PGHOST: db
+      PGDATABASE: cornell_note
+      PGUSER: postgres
+      PGPASSWORD: postgres
+    volumes:
+      - ./migrations:/migrations:ro
+    command: ["bash", "-c", "set -euo pipefail; for file in /migrations/*.sql; do echo \"Running $${file}\"; psql -v ON_ERROR_STOP=1 -f \"$${file}\"; done"]
+    restart: "no"
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    environment:
+      DATABASE_URL: jdbc:postgresql://db:5432/cornell_note
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+    ports:
+      - "3000:3000"
+
+volumes:
+  db-data:
