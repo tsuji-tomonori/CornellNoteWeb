@@ -34,28 +34,7 @@ describe("CornellNote Infra Assertions", () => {
     });
   });
 
-  test("INF-API-002 API Gateway is associated with WAF", () => {
-    template.hasResourceProperties("AWS::WAFv2::WebACLAssociation", {
-      ResourceArn: {
-        "Fn::Join": [
-          "",
-          [
-            "arn:",
-            { Ref: "AWS::Partition" },
-            ":apigateway:",
-            { Ref: "AWS::Region" },
-            ":",
-            { Ref: "AWS::AccountId" },
-            ":/apis/",
-            { Ref: Match.anyValue() },
-            "/stages/$default",
-          ],
-        ],
-      },
-    });
-  });
-
-  test("INF-API-003 API Gateway throttle settings are configured", () => {
+  test("INF-API-002 API Gateway throttle settings are configured", () => {
     template.hasResourceProperties("AWS::ApiGatewayV2::Stage", {
       DefaultRouteSettings: {
         ThrottlingBurstLimit: 200,
@@ -64,16 +43,19 @@ describe("CornellNote Infra Assertions", () => {
     });
   });
 
-  test("INF-API-004 Lambda App runs inside VPC", () => {
+  test("INF-API-003 Lambda App uses Data API env vars", () => {
     template.hasResourceProperties("AWS::Lambda::Function", {
       FunctionName: "cornellnote-dev-api",
-      VpcConfig: {
-        SubnetIds: Match.anyValue(),
+      Environment: {
+        Variables: {
+          DB_CLUSTER_ARN: Match.anyValue(),
+          DB_SECRET_ARN: Match.anyValue(),
+        },
       },
     });
   });
 
-  test("INF-API-005 Lambda App has tracing enabled", () => {
+  test("INF-API-004 Lambda App has tracing enabled", () => {
     template.hasResourceProperties("AWS::Lambda::Function", {
       FunctionName: "cornellnote-dev-api",
       TracingConfig: {
@@ -82,14 +64,14 @@ describe("CornellNote Infra Assertions", () => {
     });
   });
 
-  test("INF-API-006 Lambda App has reserved concurrency", () => {
+  test("INF-API-005 Lambda App has reserved concurrency", () => {
     template.hasResourceProperties("AWS::Lambda::Function", {
       FunctionName: "cornellnote-dev-api",
       ReservedConcurrentExecutions: 50,
     });
   });
 
-  test("INF-API-007 Lambda App has stage environment variable", () => {
+  test("INF-API-006 Lambda App has stage environment variable", () => {
     template.hasResourceProperties("AWS::Lambda::Function", {
       FunctionName: "cornellnote-dev-api",
       Environment: {
@@ -100,13 +82,13 @@ describe("CornellNote Infra Assertions", () => {
     });
   });
 
-  test("INF-API-008 Lambda App log retention is at least 30 days", () => {
+  test("INF-API-007 Lambda App log retention is at least 30 days", () => {
     template.hasResourceProperties("AWS::Logs::LogGroup", {
       RetentionInDays: 30,
     });
   });
 
-  test("INF-API-009 Lambda policies are least-privilege", () => {
+  test("INF-API-008 Lambda policies are least-privilege", () => {
     const policies = template.findResources("AWS::IAM::Policy");
     const policyValues = Object.values(policies);
     const hasAdmin = policyValues.some((policy) =>
@@ -116,10 +98,8 @@ describe("CornellNote Infra Assertions", () => {
     expect(hasAdmin).toBe(false);
   });
 
-  test("INF-DATA-001 Aurora is multi-AZ", () => {
-    template.hasResourceProperties("AWS::RDS::DBCluster", {
-      VpcSecurityGroupIds: Match.anyValue(),
-    });
+  test("INF-DATA-001 Aurora has single writer", () => {
+    template.resourceCountIs("AWS::RDS::DBInstance", 1);
   });
 
   test("INF-DATA-002 Aurora storage is encrypted", () => {
@@ -130,7 +110,7 @@ describe("CornellNote Infra Assertions", () => {
 
   test("INF-DATA-003 Aurora backups are retained", () => {
     template.hasResourceProperties("AWS::RDS::DBCluster", {
-      BackupRetentionPeriod: 90,
+      BackupRetentionPeriod: 7,
     });
   });
 
@@ -140,13 +120,23 @@ describe("CornellNote Infra Assertions", () => {
     });
   });
 
-  test("INF-DATA-005 Aurora exports logs", () => {
+  test("INF-DATA-005 Aurora auto pause is enabled", () => {
+    template.hasResourceProperties("AWS::RDS::DBCluster", {
+      ServerlessV2ScalingConfiguration: {
+        MinCapacity: 0,
+        MaxCapacity: 2,
+        SecondsUntilAutoPause: 300,
+      },
+    });
+  });
+
+  test("INF-DATA-006 Aurora exports logs", () => {
     template.hasResourceProperties("AWS::RDS::DBCluster", {
       EnableCloudwatchLogsExports: ["postgresql"],
     });
   });
 
-  test("INF-DATA-006 S3 uses encryption", () => {
+  test("INF-DATA-007 S3 uses encryption", () => {
     template.hasResourceProperties("AWS::S3::Bucket", {
       BucketEncryption: {
         ServerSideEncryptionConfiguration: [
@@ -160,7 +150,7 @@ describe("CornellNote Infra Assertions", () => {
     });
   });
 
-  test("INF-DATA-007 S3 lifecycle policy is configured", () => {
+  test("INF-DATA-008 S3 lifecycle policy is configured", () => {
     template.hasResourceProperties("AWS::S3::Bucket", {
       LifecycleConfiguration: {
         Rules: Match.arrayWith([
@@ -206,21 +196,7 @@ describe("CornellNote Infra Assertions", () => {
     });
   });
 
-  test("INF-OPS-003 WAF managed rule configured", () => {
-    template.hasResourceProperties("AWS::WAFv2::WebACL", {
-      Rules: [
-        {
-          Statement: {
-            ManagedRuleGroupStatement: {
-              Name: "AWSManagedRulesCommonRuleSet",
-            },
-          },
-        },
-      ],
-    });
-  });
-
-  test("INF-OPS-004 No admin IAM policies", () => {
+  test("INF-OPS-003 No admin IAM policies", () => {
     const policies = template.findResources("AWS::IAM::Policy");
     const policyValues = Object.values(policies);
     const hasAdmin = policyValues.some((policy) =>
@@ -230,8 +206,9 @@ describe("CornellNote Infra Assertions", () => {
     expect(hasAdmin).toBe(false);
   });
 
-  test("CDK-NAG-AWS-SOLUTIONS", () => {
+  test("INF-OPS-004 cdk-nag AwsSolutionsChecks has no errors", () => {
     const annotations = Annotations.fromStack(stack);
     annotations.hasNoError("*", Match.anyValue());
   });
+
 });

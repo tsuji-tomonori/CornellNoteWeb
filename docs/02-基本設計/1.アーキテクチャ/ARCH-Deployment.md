@@ -10,7 +10,7 @@ flowchart LR
   user((User)) --> r53[Route53]
   r53 --> apigw[API Gateway (HTTP API)]
   apigw --> lambda[Lambda + Web Adapter (Spring Boot SSR/API)]
-  lambda --> rds[(RDS/Aurora Serverless)]
+  lambda --> rds[(RDS/Aurora Serverless v2 + Data API)]
   lambda --> s3obj[(S3 Object Storage)]
   lambda --> ses[SES]
   lambda --> idp[Google OAuth]
@@ -19,15 +19,15 @@ flowchart LR
 ```
 
 ## ネットワーク/セキュリティ
-- API Gateway (HTTP API)にWAFを適用
-- RDSはVPC内のプライベートサブネット
-- LambdaはVPC内からDBに接続
+- API Gateway (HTTP API)はWAFなし（個人開発の最小構成）
+- RDSはVPC内のisolated subnet（NATなし、VPCエンドポイントなし）
+- LambdaはVPC外で実行し、RDS Data API経由でDBに接続
 - S3は署名URLでアクセス
 - IAMロールで最小権限
 
 ## 可用性/運用
 - Lambdaの自動スケールでバースト対応
-- DBはMulti-AZを前提
+- DBは単一AZ（自動一時停止/再開を優先）
 - 監視/アラートはCloudWatch + NFR-OPSに準拠
 
 ## コスト最適化の意図

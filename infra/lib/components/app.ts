@@ -1,6 +1,5 @@
 import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
-import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as iam from "aws-cdk-lib/aws-iam";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as lambdaEventSources from "aws-cdk-lib/aws-lambda-event-sources";
@@ -12,9 +11,8 @@ import * as s3 from "aws-cdk-lib/aws-s3";
 import * as sqs from "aws-cdk-lib/aws-sqs";
 import * as path from "path";
 
+
 interface AppComponentProps {
-  vpc: ec2.IVpc;
-  appSecurityGroup: ec2.ISecurityGroup;
   dbSecret: secretsmanager.ISecret;
   dbCluster: rds.IDatabaseCluster;
   storageBucket: s3.IBucket;
@@ -35,6 +33,7 @@ export class AppComponent extends Construct {
       NOTES_BUCKET: props.storageBucket.bucketName,
       ENV_NAME: props.envName,
       STAGE: props.envName,
+      SPRING_PROFILES_ACTIVE: "lambda",
     };
 
     const apiLogGroup = new logs.LogGroup(this, "ApiLogGroup", {
@@ -51,6 +50,20 @@ export class AppComponent extends Construct {
 
     apiRole.addToPolicy(
       new iam.PolicyStatement({
+        actions: ["rds-data:ExecuteStatement", "rds-data:BatchExecuteStatement"],
+        resources: [props.dbCluster.clusterArn],
+      })
+    );
+
+    apiRole.addToPolicy(
+      new iam.PolicyStatement({
+        actions: ["secretsmanager:GetSecretValue"],
+        resources: [props.dbSecret.secretArn],
+      })
+    );
+
+    apiRole.addToPolicy(
+      new iam.PolicyStatement({
         actions: [
           "logs:CreateLogStream",
           "logs:PutLogEvents",
@@ -63,16 +76,6 @@ export class AppComponent extends Construct {
       })
     );
 
-    apiRole.addToPolicy(
-      new iam.PolicyStatement({
-        actions: [
-          "ec2:CreateNetworkInterface",
-          "ec2:DescribeNetworkInterfaces",
-          "ec2:DeleteNetworkInterface",
-        ],
-        resources: ["*"],
-      })
-    );
 
     apiRole.addToPolicy(
       new iam.PolicyStatement({
@@ -100,6 +103,20 @@ export class AppComponent extends Construct {
 
     workerRole.addToPolicy(
       new iam.PolicyStatement({
+        actions: ["rds-data:ExecuteStatement", "rds-data:BatchExecuteStatement"],
+        resources: [props.dbCluster.clusterArn],
+      })
+    );
+
+    workerRole.addToPolicy(
+      new iam.PolicyStatement({
+        actions: ["secretsmanager:GetSecretValue"],
+        resources: [props.dbSecret.secretArn],
+      })
+    );
+
+    workerRole.addToPolicy(
+      new iam.PolicyStatement({
         actions: [
           "logs:CreateLogStream",
           "logs:PutLogEvents",
@@ -112,16 +129,6 @@ export class AppComponent extends Construct {
       })
     );
 
-    workerRole.addToPolicy(
-      new iam.PolicyStatement({
-        actions: [
-          "ec2:CreateNetworkInterface",
-          "ec2:DescribeNetworkInterfaces",
-          "ec2:DeleteNetworkInterface",
-        ],
-        resources: ["*"],
-      })
-    );
 
     workerRole.addToPolicy(
       new iam.PolicyStatement({
@@ -153,8 +160,6 @@ export class AppComponent extends Construct {
       ),
       memorySize: 2048,
       timeout: cdk.Duration.seconds(30),
-      vpc: props.vpc,
-      securityGroups: [props.appSecurityGroup],
       logGroup: apiLogGroup,
       role: apiRole,
       tracing: lambda.Tracing.ACTIVE,
@@ -172,8 +177,6 @@ export class AppComponent extends Construct {
       timeout: cdk.Duration.minutes(5),
       handler: "not.used",
       code: lambda.Code.fromAsset("../build/app.zip"),
-      vpc: props.vpc,
-      securityGroups: [props.appSecurityGroup],
       logGroup: workerLogGroup,
       role: workerRole,
       tracing: lambda.Tracing.ACTIVE,
@@ -190,8 +193,6 @@ export class AppComponent extends Construct {
       })
     );
 
-    props.dbSecret.grantRead(this.apiLambda);
-    props.dbSecret.grantRead(this.workerLambda);
     props.queue.grantConsumeMessages(this.workerLambda);
 
     const apiDefaultPolicy = apiRole.node.findChild("DefaultPolicy") as iam.Policy;

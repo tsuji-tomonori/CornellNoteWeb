@@ -7,7 +7,6 @@ import { NagSuppressions } from "cdk-nag";
 
 interface DatabaseComponentProps {
   vpc: ec2.IVpc;
-  appSecurityGroup: ec2.ISecurityGroup;
   envName: string;
 }
 
@@ -18,6 +17,14 @@ export class DatabaseComponent extends Construct {
   constructor(scope: Construct, id: string, props: DatabaseComponentProps) {
     super(scope, id);
 
+    const engineVersion = rds.AuroraPostgresEngineVersion.of(
+      "16.10",
+      "16",
+      {
+        serverlessV2AutoPauseSupported: true,
+      }
+    );
+
     const subnetGroup = new rds.SubnetGroup(this, "DbSubnetGroup", {
       vpc: props.vpc,
       description: "Isolated subnets for Aurora",
@@ -26,44 +33,43 @@ export class DatabaseComponent extends Construct {
 
     this.cluster = new rds.DatabaseCluster(this, "AuroraCluster", {
       engine: rds.DatabaseClusterEngine.auroraPostgres({
-        version: rds.AuroraPostgresEngineVersion.VER_15_4,
+        version: engineVersion,
       }),
       writer: rds.ClusterInstance.serverlessV2("writer", {
-        enablePerformanceInsights: true,
         publiclyAccessible: false,
+        enablePerformanceInsights: false,
       }),
-      readers: [
-        rds.ClusterInstance.serverlessV2("reader", {
-          enablePerformanceInsights: true,
-          publiclyAccessible: false,
-        }),
-      ],
       vpc: props.vpc,
       vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_ISOLATED },
       subnetGroup,
       defaultDatabaseName: "cornellnote",
       storageEncrypted: true,
       backup: {
-        retention: cdk.Duration.days(90),
+        retention: cdk.Duration.days(7),
         preferredWindow: "18:00-19:00",
       },
       iamAuthentication: true,
-      serverlessV2MinCapacity: 0.5,
-      serverlessV2MaxCapacity: props.envName === "prod" ? 4 : 2,
-      deletionProtection: true,
+      enableDataApi: true,
+      serverlessV2MinCapacity: 0,
+      serverlessV2MaxCapacity: 2,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+      publiclyAccessible: false,
+      deletionProtection: false,
       cloudwatchLogsExports: ["postgresql"],
     });
-
-    this.cluster.connections.allowDefaultPortFrom(
-      props.appSecurityGroup,
-      "Allow app access to Aurora"
-    );
 
     const secret = this.cluster.secret;
     if (!secret) {
       throw new Error("Database secret was not created");
     }
     this.secret = secret;
+
+    const clusterResource = this.cluster.node.defaultChild as rds.CfnDBCluster;
+    clusterResource.serverlessV2ScalingConfiguration = {
+      minCapacity: 0,
+      maxCapacity: 2,
+      secondsUntilAutoPause: 300,
+    };
 
     const secretResource = this.cluster.node.findChild("Secret");
     NagSuppressions.addResourceSuppressions(

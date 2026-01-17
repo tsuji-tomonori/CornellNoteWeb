@@ -4,7 +4,6 @@ import * as apigwv2 from "aws-cdk-lib/aws-apigatewayv2";
 import * as iam from "aws-cdk-lib/aws-iam";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as logs from "aws-cdk-lib/aws-logs";
-import * as wafv2 from "aws-cdk-lib/aws-wafv2";
 
 interface ApiComponentProps {
   handler: lambda.IFunction;
@@ -78,43 +77,5 @@ export class ApiComponent extends Construct {
       }),
     });
 
-    const webAcl = new wafv2.CfnWebACL(this, "ApiWebAcl", {
-      defaultAction: { allow: {} },
-      scope: "REGIONAL",
-      visibilityConfig: {
-        cloudWatchMetricsEnabled: true,
-        metricName: `cornellnote-${props.envName}-waf`,
-        sampledRequestsEnabled: true,
-      },
-      rules: [
-        {
-          name: "AWSManagedRulesCommonRuleSet",
-          priority: 0,
-          overrideAction: { none: {} },
-          statement: {
-            managedRuleGroupStatement: {
-              name: "AWSManagedRulesCommonRuleSet",
-              vendorName: "AWS",
-            },
-          },
-          visibilityConfig: {
-            cloudWatchMetricsEnabled: true,
-            metricName: `cornellnote-${props.envName}-common`,
-            sampledRequestsEnabled: true,
-          },
-        },
-      ],
-    });
-
-    const stageArn = cdk.Stack.of(this).formatArn({
-      service: "apigateway",
-      resource: "/apis",
-      resourceName: `${api.ref}/stages/$default`,
-    });
-
-    new wafv2.CfnWebACLAssociation(this, "ApiWebAclAssoc", {
-      resourceArn: stageArn,
-      webAclArn: webAcl.attrArn,
-    });
   }
 }

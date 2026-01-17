@@ -8,7 +8,6 @@ import { QueueComponent } from "./components/queue";
 import { AppComponent } from "./components/app";
 import { ApiComponent } from "./components/api";
 import { ObservabilityComponent } from "./components/observability";
-import { SecurityComponent } from "./components/security";
 import { EmailComponent } from "./components/email";
 
 interface CornellNoteStackProps extends cdk.StackProps {
@@ -29,15 +28,10 @@ export class CornellNoteStack extends cdk.Stack {
       envName: props.envName,
     });
 
-    const security = new SecurityComponent(this, "Security", {
-      vpc: network.vpc,
-    });
-
     const storage = new StorageComponent(this, "Storage");
 
     const database = new DatabaseComponent(this, "Database", {
       vpc: network.vpc,
-      appSecurityGroup: security.appSecurityGroup,
       envName: props.envName,
     });
 
@@ -50,8 +44,6 @@ export class CornellNoteStack extends cdk.Stack {
     });
 
     const app = new AppComponent(this, "App", {
-      vpc: network.vpc,
-      appSecurityGroup: security.appSecurityGroup,
       dbSecret: database.secret,
       dbCluster: database.cluster,
       storageBucket: storage.bucket,
