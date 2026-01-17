@@ -1,7 +1,7 @@
-# FR-030 キーワード検索できる
+# FR-SEARCH-001 キーワード検索できる
 
 ## Snow Card
-- **Requirement ID**: FR-030
+- **Requirement ID**: FR-SEARCH-001
 - **Type**: Functional
 - **Use Case**: UC-05
 - **Description（INCOSE形式）**: 本システムは、利用者がキーワードによりノートを検索できるようにしなければならない。

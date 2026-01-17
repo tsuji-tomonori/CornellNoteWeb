@@ -1,7 +1,7 @@
-# FR-017 保存状態（保存済み/未保存/失敗）を表示できる
+# FR-EDIT-005 保存状態（保存済み/未保存/失敗）を表示できる
 
 ## Snow Card
-- **Requirement ID**: FR-017
+- **Requirement ID**: FR-EDIT-005
 - **Type**: Functional
 - **Use Case**: UC-03
 - **Description（INCOSE形式）**: 本システムは、ノート編集画面で保存状態（保存済み／未保存／保存失敗）を利用者に表示しなければならない。
@@ -12,4 +12,4 @@
 - **Priority**: Should
 - **Originator**: UX担当
 - **Supporting Materials**: UC-03、状態遷移図
-- **Conflicts/Dependencies**: FR-016に依存。エラー表示品質（NFR-UX-001）と整合が必要。
+- **Conflicts/Dependencies**: FR-EDIT-004に依存。エラー表示品質（NFR-UX-001）と整合が必要。

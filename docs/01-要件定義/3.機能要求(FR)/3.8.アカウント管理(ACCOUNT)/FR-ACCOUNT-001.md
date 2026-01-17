@@ -1,7 +1,7 @@
-# FR-060 退会処理（アカウント削除）を実行できる
+# FR-ACCOUNT-001 退会処理（アカウント削除）を実行できる
 
 ## Snow Card
-- **Requirement ID**: FR-060
+- **Requirement ID**: FR-ACCOUNT-001
 - **Type**: Functional
 - **Use Case**: UC-08
 - **Description（INCOSE形式）**: 本システムは、利用者が退会処理（アカウント削除）を実行できるようにしなければならない。

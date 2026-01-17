@@ -1,7 +1,7 @@
-# FR-022 ノートにタグを付与できる
+# FR-ORGANIZE-002 ノートにタグを付与できる
 
 ## Snow Card
-- **Requirement ID**: FR-022
+- **Requirement ID**: FR-ORGANIZE-002
 - **Type**: Functional
 - **Use Case**: UC-04
 - **Description（INCOSE形式）**: 本システムは、利用者がノートにタグを付与・削除できるようにしなければならない。
@@ -12,4 +12,4 @@
 - **Priority**: Should
 - **Originator**: エンドユーザー代表
 - **Supporting Materials**: UC-04/05、タグ設計案
-- **Conflicts/Dependencies**: 検索/絞り込み（FR-030）と整合が必要。
+- **Conflicts/Dependencies**: 検索/絞り込み（FR-SEARCH-001）と整合が必要。

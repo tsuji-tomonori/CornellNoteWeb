@@ -1,7 +1,7 @@
-# FR-002 メールアドレスでログインできる
+# FR-AUTH-002 メールアドレスでログインできる
 
 ## Snow Card
-- **Requirement ID**: FR-002
+- **Requirement ID**: FR-AUTH-002
 - **Type**: Functional
 - **Use Case**: UC-01
 - **Description（INCOSE形式）**: 本システムは、登録済み利用者がメールアドレスとパスワードでログインできるようにしなければならない。
@@ -12,4 +12,4 @@
 - **Priority**: Must
 - **Originator**: エンドユーザー代表
 - **Supporting Materials**: UC-01、認証フロー図
-- **Conflicts/Dependencies**: FR-001に依存。
+- **Conflicts/Dependencies**: FR-AUTH-001に依存。

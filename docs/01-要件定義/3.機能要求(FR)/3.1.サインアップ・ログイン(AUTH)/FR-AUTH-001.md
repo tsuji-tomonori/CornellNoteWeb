@@ -1,7 +1,7 @@
-# FR-001 メールアドレスで新規登録できる
+# FR-AUTH-001 メールアドレスで新規登録できる
 
 ## Snow Card
-- **Requirement ID**: FR-001
+- **Requirement ID**: FR-AUTH-001
 - **Type**: Functional
 - **Use Case**: UC-01
 - **Description（INCOSE形式）**: 本システムは、未登録の利用者がメールアドレスとパスワードを用いてアカウント登録できるようにしなければならない。

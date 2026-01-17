@@ -1,7 +1,7 @@
-# FR-016 編集内容を保存できる
+# FR-EDIT-004 編集内容を保存できる
 
 ## Snow Card
-- **Requirement ID**: FR-016
+- **Requirement ID**: FR-EDIT-004
 - **Type**: Functional
 - **Use Case**: UC-03
 - **Description（INCOSE形式）**: 本システムは、利用者の編集内容（Cue/Notes/Summary/タイトル等）を永続化できるようにしなければならない。

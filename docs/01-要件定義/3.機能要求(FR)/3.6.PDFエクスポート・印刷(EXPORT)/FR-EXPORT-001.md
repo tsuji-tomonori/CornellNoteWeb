@@ -1,7 +1,7 @@
-# FR-040 CornellレイアウトでPDFを生成できる
+# FR-EXPORT-001 CornellレイアウトでPDFを生成できる
 
 ## Snow Card
-- **Requirement ID**: FR-040
+- **Requirement ID**: FR-EXPORT-001
 - **Type**: Functional
 - **Use Case**: UC-06
 - **Description（INCOSE形式）**: 本システムは、ノートを Cornell レイアウト（Cue/Notes/Summary の区画が判別可能）を保った PDF として生成できるようにしなければならない。
@@ -12,4 +12,4 @@
 - **Priority**: Should
 - **Originator**: エンドユーザー代表
 - **Supporting Materials**: UC-06、PDFレイアウト仕様案
-- **Conflicts/Dependencies**: FR-011〜FR-016に依存。
+- **Conflicts/Dependencies**: FR-COMMON-001〜FR-EDIT-004に依存。

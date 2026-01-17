@@ -1,7 +1,7 @@
-# FR-012 Cue領域へテキスト入力できる
+# FR-EDIT-001 Cue領域へテキスト入力できる
 
 ## Snow Card
-- **Requirement ID**: FR-012
+- **Requirement ID**: FR-EDIT-001
 - **Type**: Functional
 - **Use Case**: UC-03
 - **Description（INCOSE形式）**: 本システムは、利用者が Cue 領域にテキストを入力・編集できるようにしなければならない。
@@ -12,4 +12,4 @@
 - **Priority**: Must
 - **Originator**: エンドユーザー代表
 - **Supporting Materials**: UC-03
-- **Conflicts/Dependencies**: 保存（FR-016）に依存。
+- **Conflicts/Dependencies**: 保存（FR-EDIT-004）に依存。

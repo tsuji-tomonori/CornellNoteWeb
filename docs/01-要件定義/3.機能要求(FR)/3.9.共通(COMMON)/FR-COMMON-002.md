@@ -1,7 +1,7 @@
-# FR-015 ノートタイトルを編集できる
+# FR-COMMON-002 ノートタイトルを編集できる
 
 ## Snow Card
-- **Requirement ID**: FR-015
+- **Requirement ID**: FR-COMMON-002
 - **Type**: Functional
 - **Use Case**: UC-02, UC-03
 - **Description（INCOSE形式）**: 本システムは、利用者がノートタイトルを編集できるようにしなければならない。
@@ -12,4 +12,4 @@
 - **Priority**: Must
 - **Originator**: エンドユーザー代表
 - **Supporting Materials**: UC-02/03
-- **Conflicts/Dependencies**: 一覧（FR-020）と検索（FR-030）に依存関係がある。
+- **Conflicts/Dependencies**: 一覧（FR-COMMON-003）と検索（FR-SEARCH-001）に依存関係がある。

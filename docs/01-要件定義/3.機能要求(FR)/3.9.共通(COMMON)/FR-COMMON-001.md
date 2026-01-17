@@ -1,7 +1,7 @@
-# FR-011 Cornellレイアウト（Cue/Notes/Summary）を表示できる
+# FR-COMMON-001 Cornellレイアウト（Cue/Notes/Summary）を表示できる
 
 ## Snow Card
-- **Requirement ID**: FR-011
+- **Requirement ID**: FR-COMMON-001
 - **Type**: Functional
 - **Use Case**: UC-02, UC-03
 - **Description（INCOSE形式）**: 本システムは、ノート編集画面に Cue、Notes、Summary の3領域を同時に表示しなければならない。
@@ -12,4 +12,4 @@
 - **Priority**: Must
 - **Originator**: エンドユーザー代表
 - **Supporting Materials**: UC-02/03、UIモック
-- **Conflicts/Dependencies**: PDF出力（FR-040）ともレイアウト整合が必要。
+- **Conflicts/Dependencies**: PDF出力（FR-EXPORT-001）ともレイアウト整合が必要。

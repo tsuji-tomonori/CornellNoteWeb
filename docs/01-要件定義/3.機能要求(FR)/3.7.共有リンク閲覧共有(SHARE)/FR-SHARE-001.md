@@ -1,7 +1,7 @@
-# FR-050 共有リンクを発行できる
+# FR-SHARE-001 共有リンクを発行できる
 
 ## Snow Card
-- **Requirement ID**: FR-050
+- **Requirement ID**: FR-SHARE-001
 - **Type**: Functional
 - **Use Case**: UC-07
 - **Description（INCOSE形式）**: 本システムは、利用者がノートの共有リンクを発行できるようにしなければならない。

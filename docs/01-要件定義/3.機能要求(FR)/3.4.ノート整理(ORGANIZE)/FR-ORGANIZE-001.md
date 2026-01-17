@@ -1,7 +1,7 @@
-# FR-021 ノートブックを作成できる
+# FR-ORGANIZE-001 ノートブックを作成できる
 
 ## Snow Card
-- **Requirement ID**: FR-021
+- **Requirement ID**: FR-ORGANIZE-001
 - **Type**: Functional
 - **Use Case**: UC-04
 - **Description（INCOSE形式）**: 本システムは、利用者がノートブックを作成できるようにしなければならない。
@@ -12,4 +12,4 @@
 - **Priority**: Should
 - **Originator**: エンドユーザー代表
 - **Supporting Materials**: UC-04、情報設計案
-- **Conflicts/Dependencies**: 一覧（FR-020）に依存。
+- **Conflicts/Dependencies**: 一覧（FR-COMMON-003）に依存。

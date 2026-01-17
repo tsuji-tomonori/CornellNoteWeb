@@ -1,7 +1,7 @@
-# FR-010 Cornellノートを新規作成できる
+# FR-CREATE-001 Cornellノートを新規作成できる
 
 ## Snow Card
-- **Requirement ID**: FR-010
+- **Requirement ID**: FR-CREATE-001
 - **Type**: Functional
 - **Use Case**: UC-02
 - **Description（INCOSE形式）**: 本システムは、ログイン済み利用者が Cornell 形式（Cue/Notes/Summary）を持つノートを新規作成できるようにしなければならない。
@@ -12,4 +12,4 @@
 - **Priority**: Must
 - **Originator**: プロダクトオーナー
 - **Supporting Materials**: UC-02
-- **Conflicts/Dependencies**: FR-002に依存。
+- **Conflicts/Dependencies**: FR-AUTH-002に依存。

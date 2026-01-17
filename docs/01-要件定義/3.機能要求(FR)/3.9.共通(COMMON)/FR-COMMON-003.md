@@ -1,7 +1,7 @@
-# FR-020 ノート一覧を表示できる
+# FR-COMMON-003 ノート一覧を表示できる
 
 ## Snow Card
-- **Requirement ID**: FR-020
+- **Requirement ID**: FR-COMMON-003
 - **Type**: Functional
 - **Use Case**: UC-02, UC-03, UC-05
 - **Description（INCOSE形式）**: 本システムは、ログイン済み利用者に対し、当該利用者のノート一覧（タイトル、更新日時等）を表示できるようにしなければならない。
@@ -12,4 +12,4 @@
 - **Priority**: Must
 - **Originator**: プロダクトオーナー
 - **Supporting Materials**: UC-02/03/05、一覧UI案
-- **Conflicts/Dependencies**: FR-002、FR-010、FR-016に依存。
+- **Conflicts/Dependencies**: FR-AUTH-002、FR-CREATE-001、FR-EDIT-004に依存。

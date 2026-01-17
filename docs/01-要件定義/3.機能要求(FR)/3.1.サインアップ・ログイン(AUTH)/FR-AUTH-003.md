@@ -1,7 +1,7 @@
-# FR-003 パスワードリセットを要求できる
+# FR-AUTH-003 パスワードリセットを要求できる
 
 ## Snow Card
-- **Requirement ID**: FR-003
+- **Requirement ID**: FR-AUTH-003
 - **Type**: Functional
 - **Use Case**: UC-01
 - **Description（INCOSE形式）**: 本システムは、利用者がパスワードリセット手続きを開始できるようにしなければならない。

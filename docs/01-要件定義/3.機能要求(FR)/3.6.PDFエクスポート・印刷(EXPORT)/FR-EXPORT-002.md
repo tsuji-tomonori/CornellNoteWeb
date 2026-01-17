@@ -1,7 +1,7 @@
-# FR-041 印刷用表示を提供できる
+# FR-EXPORT-002 印刷用表示を提供できる
 
 ## Snow Card
-- **Requirement ID**: FR-041
+- **Requirement ID**: FR-EXPORT-002
 - **Type**: Functional
 - **Use Case**: UC-06
 - **Description（INCOSE形式）**: 本システムは、ブラウザ印刷時に Cornell レイアウトが崩れにくい印刷用表示を提供しなければならない。
