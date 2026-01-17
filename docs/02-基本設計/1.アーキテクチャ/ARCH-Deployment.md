@@ -8,11 +8,8 @@
 ```mermaid
 flowchart LR
   user((User)) --> r53[Route53]
-  r53 --> cf[CloudFront]
-  cf --> s3[S3 Static Hosting]
-
-  user --> apigw[API Gateway]
-  apigw --> lambda[Lambda API]
+  r53 --> apigw[API Gateway (HTTP API)]
+  apigw --> lambda[Lambda + Web Adapter (Spring Boot SSR/API)]
   lambda --> rds[(RDS/Aurora Serverless)]
   lambda --> s3obj[(S3 Object Storage)]
   lambda --> ses[SES]
@@ -22,8 +19,7 @@ flowchart LR
 ```
 
 ## ネットワーク/セキュリティ
-- CloudFront + WAFでエッジ保護
-- API GatewayにWAFを適用
+- API Gateway (HTTP API)にWAFを適用
 - RDSはVPC内のプライベートサブネット
 - LambdaはVPC内からDBに接続
 - S3は署名URLでアクセス
@@ -35,5 +31,5 @@ flowchart LR
 - 監視/アラートはCloudWatch + NFR-OPSに準拠
 
 ## コスト最適化の意図
-- 常時稼働を避け、従量課金のAPI Gateway + Lambdaを採用
+- 常時稼働を避け、従量課金のAPI Gateway (HTTP API) + Lambdaを採用
 - 非同期処理はSQS + Lambdaでオンデマンド実行

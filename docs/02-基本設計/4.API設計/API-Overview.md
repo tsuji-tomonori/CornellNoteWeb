@@ -25,6 +25,7 @@
   - DELETE /share/{token}
 
 ## 共通方針
+- Spring Boot同一アプリ内でSSR UIとAPIを提供（HTTP API経由の公開）
 - JSON/UTF-8
 - ページング: limit/offset
 - 監査ログの相関IDをヘッダーで付与
