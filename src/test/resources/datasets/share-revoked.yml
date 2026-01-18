@@ -1,0 +1,42 @@
+users:
+  - id: "11111111-1111-1111-1111-111111111111"
+    email: "demo@example.com"
+    auth_provider: "local"
+    status: "active"
+    created_at: "2025-01-01 00:00:00"
+    updated_at: "2025-01-01 00:00:00"
+    deleted_at: null
+
+notebooks:
+  - id: "22222222-2222-2222-2222-222222222222"
+    user_id: "11111111-1111-1111-1111-111111111111"
+    name: "プログラミング学習"
+    sort_order: 1
+    created_at: "2025-01-10 09:00:00"
+    updated_at: "2025-01-15 14:30:00"
+    deleted_at: null
+
+notes:
+  - id: "11111111-2222-3333-4444-555555555555"
+    notebook_id: "22222222-2222-2222-2222-222222222222"
+    title: "JavaScriptの非同期処理"
+    content_ref: "Promise、async/await、コールバック関数について学習。非同期処理の基本概念を整理..."
+    summary_ref: "JavaScriptの非同期処理は、シングルスレッドの制約を克服するための重要な概念。Promiseは非同期操作を表現するオブジェクトで、async/awaitはPromiseをより直感的に扱える構文。エラーハンドリングはtry-catchで行い、複数の非同期処理を並列実行したい場合はPromise.allを使用する。"
+    cue_ref: "# キーポイント"
+    status: "active"
+    created_at: "2025-01-15 10:00:00"
+    updated_at: "2025-01-16 14:30:00"
+    deleted_at: null
+
+share_tokens:
+  - id: "cccccccc-cccc-cccc-cccc-cccccccccccc"
+    note_id: "11111111-2222-3333-4444-555555555555"
+    token_hash: "revoked123"
+    status: "revoked"
+    expires_at: null
+    created_at: "2025-01-16 12:00:00"
+    revoked_at: "2025-01-16 12:00:00"
+
+note_tags: []
+
+tags: []

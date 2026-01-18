@@ -1,0 +1,23 @@
+{
+  "items": [
+    {
+      "noteId": "ffffffff-1111-1111-1111-111111111111",
+      "title": "Missing tag note",
+      "notebookId": "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee",
+      "tags": [
+        {
+          "tagId": "55555555-5555-5555-5555-555555555555",
+          "name": "JavaScript",
+          "createdAt": "2025-01-10T00:00:00Z",
+          "updatedAt": "2025-01-10T00:00:00Z"
+        }
+      ],
+      "preview": "Missing tag preview",
+      "createdAt": "2025-01-13T00:00:00Z",
+      "updatedAt": "2025-01-13T01:00:00Z"
+    }
+  ],
+  "total": 1,
+  "limit": 20,
+  "offset": 0
+}

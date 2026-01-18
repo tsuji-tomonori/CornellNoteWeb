@@ -1,0 +1,25 @@
+{
+  "items": [
+    {
+      "noteId": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+      "title": "Second note",
+      "notebookId": "cccccccc-cccc-cccc-cccc-cccccccccccc",
+      "tags": [],
+      "preview": "Second preview",
+      "createdAt": "2025-01-11T00:00:00Z",
+      "updatedAt": "2025-01-11T01:00:00Z"
+    },
+    {
+      "noteId": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      "title": "First note",
+      "notebookId": "cccccccc-cccc-cccc-cccc-cccccccccccc",
+      "tags": [],
+      "preview": "First preview",
+      "createdAt": "2025-01-10T00:00:00Z",
+      "updatedAt": "2025-01-10T01:00:00Z"
+    }
+  ],
+  "total": 2,
+  "limit": 20,
+  "offset": 0
+}
