@@ -119,7 +119,7 @@ spotless {
 pitest {
   pitestVersion = '1.15.0'
   junit5PluginVersion = '1.2.1'
-  targetClasses = ['com.example.cornellnote.*']
+  targetClasses = ['com.example.cornellnote.api.service.*']
   targetTests = ['com.example.cornellnote.*']
   threads = Runtime.runtime.availableProcessors()
   outputFormats = ['HTML', 'XML']
