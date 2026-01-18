@@ -25,46 +25,52 @@ public class SecretsManagerEnvironmentPostProcessor implements EnvironmentPostPr
   private final ObjectMapper objectMapper = new ObjectMapper();
 
   @Override
-  public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
-    String secretArn = environment.getProperty(SECRET_ARN_ENV);
+  public void postProcessEnvironment(
+      final ConfigurableEnvironment environment, final SpringApplication application) {
+    final String secretArn = environment.getProperty(SECRET_ARN_ENV);
     if (secretArn == null || secretArn.isBlank()) {
       return;
     }
 
-    String regionName = environment.getProperty(REGION_ENV);
+    final String regionName = environment.getProperty(REGION_ENV);
     if (regionName == null || regionName.isBlank()) {
       throw new IllegalStateException("AWS_REGION is required when DB_SECRET_ARN is set");
     }
 
-    Map<String, Object> properties = loadDatabaseProperties(secretArn, regionName);
-    PropertySource<?> propertySource = new MapPropertySource(PROPERTY_SOURCE_NAME, properties);
-    environment.getPropertySources().addFirst(propertySource);
+    final Map<String, Object> properties = loadDatabaseProperties(secretArn, regionName);
+    final PropertySource<?> propertySource =
+        new MapPropertySource(PROPERTY_SOURCE_NAME, properties);
+    addPropertySource(environment, propertySource);
   }
 
   @Override
   public int getOrder() {
-    return Ordered.HIGHEST_PRECEDENCE;
+    return HIGHEST_PRECEDENCE;
   }
 
-  private Map<String, Object> loadDatabaseProperties(String secretArn, String regionName) {
-    try (SecretsManagerClient client = SecretsManagerClient.builder()
-        .region(Region.of(regionName))
-        .build()) {
-      GetSecretValueResponse response = client.getSecretValue(
-          GetSecretValueRequest.builder().secretId(secretArn).build()
-      );
-      String secretString = response.secretString();
+  private void addPropertySource(
+      final ConfigurableEnvironment environment, final PropertySource<?> propertySource) {
+    environment.getPropertySources().addFirst(propertySource);
+  }
+
+  private Map<String, Object> loadDatabaseProperties(
+      final String secretArn, final String regionName) {
+    try (SecretsManagerClient client =
+        SecretsManagerClient.builder().region(Region.of(regionName)).build()) {
+      final GetSecretValueResponse response =
+          client.getSecretValue(GetSecretValueRequest.builder().secretId(secretArn).build());
+      final String secretString = response.secretString();
       if (secretString == null || secretString.isBlank()) {
         throw new IllegalStateException("Secret value is empty");
       }
-      JsonNode secret = objectMapper.readTree(secretString);
-      String username = readText(secret, "username");
-      String password = readText(secret, "password");
-      String host = readText(secret, "host");
-      String port = readOptionalText(secret, "port", DEFAULT_PORT);
-      String dbName = readText(secret, "dbname");
+      final JsonNode secret = objectMapper.readTree(secretString);
+      final String username = readText(secret, "username");
+      final String password = readText(secret, "password");
+      final String host = readText(secret, "host");
+      final String port = readOptionalText(secret, "port", DEFAULT_PORT);
+      final String dbName = readText(secret, "dbname");
 
-      Map<String, Object> properties = new HashMap<>();
+      final Map<String, Object> properties = new HashMap<>();
       properties.put("spring.datasource.url", buildJdbcUrl(host, port, dbName));
       properties.put("spring.datasource.username", username);
       properties.put("spring.datasource.password", password);
@@ -74,23 +80,25 @@ public class SecretsManagerEnvironmentPostProcessor implements EnvironmentPostPr
     }
   }
 
-  private String buildJdbcUrl(String host, String port, String dbName) {
+  private String buildJdbcUrl(final String host, final String port, final String dbName) {
     return "jdbc:postgresql://" + host + ":" + port + "/" + dbName;
   }
 
-  private String readText(JsonNode secret, String field) {
-    JsonNode node = secret.get(field);
+  private String readText(final JsonNode secret, final String field) {
+    final JsonNode node = secret.get(field);
     if (node == null || node.asText().isBlank()) {
       throw new IllegalStateException("Missing secret field: " + field);
     }
     return node.asText();
   }
 
-  private String readOptionalText(JsonNode secret, String field, String fallback) {
-    JsonNode node = secret.get(field);
-    if (node == null || node.asText().isBlank()) {
-      return fallback;
+  private String readOptionalText(
+      final JsonNode secret, final String field, final String fallback) {
+    final JsonNode node = secret.get(field);
+    String value = fallback;
+    if (node != null && !node.asText().isBlank()) {
+      value = node.asText();
     }
-    return node.asText();
+    return value;
   }
 }

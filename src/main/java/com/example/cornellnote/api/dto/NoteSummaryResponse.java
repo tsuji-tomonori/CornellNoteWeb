@@ -11,6 +11,10 @@ public record NoteSummaryResponse(
     List<TagResponse> tags,
     String preview,
     Instant createdAt,
-    Instant updatedAt
-) {
+    Instant updatedAt) {
+  public NoteSummaryResponse {
+    if (tags != null) {
+      tags = List.copyOf(tags);
+    }
+  }
 }

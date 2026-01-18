@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/notes")
+@SuppressWarnings("EI_EXPOSE_REP2")
 public class NoteController {
   private final NoteService noteService;
 
@@ -30,8 +31,7 @@ public class NoteController {
 
   @GetMapping
   public ResponseEntity<NoteListResponse> listNotes(
-      @RequestParam(defaultValue = "20") int limit,
-      @RequestParam(defaultValue = "0") int offset) {
+      @RequestParam(defaultValue = "20") int limit, @RequestParam(defaultValue = "0") int offset) {
     return ResponseEntity.ok(noteService.listNotes(limit, offset));
   }
 
@@ -47,8 +47,7 @@ public class NoteController {
 
   @PutMapping("/{noteId}")
   public ResponseEntity<NoteResponse> updateNote(
-      @PathVariable String noteId,
-      @Valid @RequestBody UpdateNoteRequest request) {
+      @PathVariable String noteId, @Valid @RequestBody UpdateNoteRequest request) {
     return ResponseEntity.ok(noteService.updateNote(noteId, request));
   }
 

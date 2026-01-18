@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+  <Match>
+    <Bug pattern="EI_EXPOSE_REP2" />
+    <Class name="com.example.cornellnote.api.controller.NoteController" />
+  </Match>
+  <Match>
+    <Bug pattern="EI_EXPOSE_REP2" />
+    <Class name="com.example.cornellnote.api.controller.SearchController" />
+  </Match>
+  <Match>
+    <Bug pattern="EI_EXPOSE_REP" />
+    <Class name="com.example.cornellnote.api.dto.CreateNoteRequest" />
+  </Match>
+  <Match>
+    <Bug pattern="EI_EXPOSE_REP" />
+    <Class name="com.example.cornellnote.api.dto.NoteListResponse" />
+  </Match>
+  <Match>
+    <Bug pattern="EI_EXPOSE_REP" />
+    <Class name="com.example.cornellnote.api.dto.NoteResponse" />
+  </Match>
+  <Match>
+    <Bug pattern="EI_EXPOSE_REP" />
+    <Class name="com.example.cornellnote.api.dto.NoteSummaryResponse" />
+  </Match>
+  <Match>
+    <Bug pattern="EI_EXPOSE_REP" />
+    <Class name="com.example.cornellnote.api.dto.UpdateNoteRequest" />
+  </Match>
+</FindBugsFilter>

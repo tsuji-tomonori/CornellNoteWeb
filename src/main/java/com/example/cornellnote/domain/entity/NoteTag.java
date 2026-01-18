@@ -20,8 +20,7 @@ public class NoteTag {
   @Column(name = "tag_id")
   private UUID tagId;
 
-  protected NoteTag() {
-  }
+  protected NoteTag() {}
 
   public NoteTag(UUID noteId, UUID tagId) {
     this.noteId = noteId;
@@ -37,11 +36,11 @@ public class NoteTag {
   }
 
   public static class NoteTagId implements Serializable {
+    private static final long serialVersionUID = 1L;
     private UUID noteId;
     private UUID tagId;
 
-    public NoteTagId() {
-    }
+    public NoteTagId() {}
 
     public NoteTagId(UUID noteId, UUID tagId) {
       this.noteId = noteId;
@@ -50,17 +49,16 @@ public class NoteTag {
 
     @Override
     public boolean equals(Object o) {
-      if (this == o) {
-        return true;
+      boolean matches = this == o;
+      if (!matches && o != null && getClass() == o.getClass()) {
+        NoteTagId that = (NoteTagId) o;
+        if (noteId != null ? !noteId.equals(that.noteId) : that.noteId != null) {
+          matches = false;
+        } else {
+          matches = tagId != null ? tagId.equals(that.tagId) : that.tagId == null;
+        }
       }
-      if (o == null || getClass() != o.getClass()) {
-        return false;
-      }
-      NoteTagId that = (NoteTagId) o;
-      if (noteId != null ? !noteId.equals(that.noteId) : that.noteId != null) {
-        return false;
-      }
-      return tagId != null ? tagId.equals(that.tagId) : that.tagId == null;
+      return matches;
     }
 
     @Override

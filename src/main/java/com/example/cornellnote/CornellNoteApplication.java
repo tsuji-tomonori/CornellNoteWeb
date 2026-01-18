@@ -4,8 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class CornellNoteApplication {
-  public static void main(String[] args) {
+public final class CornellNoteApplication {
+  private CornellNoteApplication() {}
+
+  public static void main(final String[] args) {
     SpringApplication.run(CornellNoteApplication.class, args);
   }
 }

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/search")
+@SuppressWarnings("EI_EXPOSE_REP2")
 public class SearchController {
   private final NoteService noteService;
 

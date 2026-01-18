@@ -13,6 +13,10 @@ public record NoteResponse(
     UUID notebookId,
     List<TagResponse> tags,
     Instant createdAt,
-    Instant updatedAt
-) {
+    Instant updatedAt) {
+  public NoteResponse {
+    if (tags != null) {
+      tags = List.copyOf(tags);
+    }
+  }
 }

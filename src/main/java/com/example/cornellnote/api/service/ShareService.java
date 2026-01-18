@@ -43,7 +43,8 @@ public class ShareService {
         shareTokenRepository
             .findByTokenHash(token)
             .orElseThrow(() -> new NotFoundException("Shared note not found"));
-    if (!"active".equals(record.getStatus()) || isExpired(record.getExpiresAt())) {
+    final String activeStatus = "active";
+    if (!activeStatus.equals(record.getStatus()) || isExpired(record.getExpiresAt())) {
       throw new NotFoundException("Shared note not found");
     }
     Note note =
@@ -64,7 +65,8 @@ public class ShareService {
         shareTokenRepository
             .findByTokenHash(token)
             .orElseThrow(() -> new NotFoundException("Share link not found"));
-    if ("revoked".equals(record.getStatus())) {
+    final String revokedStatus = "revoked";
+    if (revokedStatus.equals(record.getStatus())) {
       return;
     }
     ShareToken revoked =
@@ -94,7 +96,7 @@ public class ShareService {
     try {
       return UUID.fromString(value);
     } catch (IllegalArgumentException ex) {
-      throw new BadRequestException(fieldName + "が不正です");
+      throw new BadRequestException(fieldName + "が不正です", ex);
     }
   }
 }

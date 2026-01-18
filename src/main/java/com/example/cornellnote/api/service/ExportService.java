@@ -7,13 +7,13 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ExportService {
-  public ExportJobResponse requestExport(String noteId) {
+  public ExportJobResponse requestExport(final String noteId) {
     return new ExportJobResponse(
         UUID.randomUUID(), UUID.fromString(noteId), "pending", null, Instant.now(), Instant.now());
   }
 
-  public ExportJobResponse getExportStatus(String exportId) {
-    UUID exportUuid = parseExportId(exportId);
+  public ExportJobResponse getExportStatus(final String exportId) {
+    final UUID exportUuid = parseExportId(exportId);
     return new ExportJobResponse(
         exportUuid,
         UUID.randomUUID(),
@@ -23,14 +23,15 @@ public class ExportService {
         Instant.now());
   }
 
-  private UUID parseExportId(String exportId) {
-    if (exportId == null || exportId.isBlank()) {
-      return UUID.randomUUID();
+  private UUID parseExportId(final String exportId) {
+    UUID result = UUID.randomUUID();
+    if (exportId != null && !exportId.isBlank()) {
+      try {
+        result = UUID.fromString(exportId);
+      } catch (IllegalArgumentException ex) {
+        result = UUID.nameUUIDFromBytes(exportId.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+      }
     }
-    try {
-      return UUID.fromString(exportId);
-    } catch (IllegalArgumentException ex) {
-      return UUID.nameUUIDFromBytes(exportId.getBytes(java.nio.charset.StandardCharsets.UTF_8));
-    }
+    return result;
   }
 }

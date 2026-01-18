@@ -24,7 +24,7 @@ public class SessionUserIdResolver {
       try {
         userId = UUID.fromString(id);
       } catch (IllegalArgumentException ex) {
-        throw new BadRequestException("userIdが不正です");
+        throw new BadRequestException("userIdが不正です", ex);
       }
     }
 

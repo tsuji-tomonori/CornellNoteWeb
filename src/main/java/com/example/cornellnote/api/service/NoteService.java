@@ -221,7 +221,7 @@ public class NoteService {
     try {
       return UUID.fromString(value);
     } catch (IllegalArgumentException ex) {
-      throw new BadRequestException(fieldName + "が不正です");
+      throw new BadRequestException(fieldName + "が不正です", ex);
     }
   }
 }
