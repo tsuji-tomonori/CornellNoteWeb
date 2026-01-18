@@ -232,6 +232,38 @@ class NoteControllerTest extends ApiTestSupport {
   }
 
   @Test
+  @DisplayName("UT-NOTE-018 updateNote should return not found")
+  @DataSet(value = "datasets/note-update.yml", disableConstraints = true)
+  void updateNote_shouldReturnNotFound() throws Exception {
+    UpdateNoteRequest request =
+        new UpdateNoteRequest(
+            "更新タイトル",
+            "更新Cue",
+            "更新Notes",
+            "更新Summary",
+            null,
+            java.util.List.of());
+
+    String response =
+        mockMvc
+            .perform(
+                org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put(
+                        "/api/notes/{noteId}", "99999999-9999-9999-9999-999999999999")
+                    .sessionAttr("userId", "11111111-1111-1111-1111-111111111111")
+                    .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(request))
+                    .accept(org.springframework.http.MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isNotFound())
+            .andExpect(MockMvcResultMatchers.header().exists("X-Trace-Id"))
+            .andExpect(MockMvcResultMatchers.content().contentType("application/json"))
+            .andReturn()
+            .getResponse()
+            .getContentAsString(StandardCharsets.UTF_8);
+
+    assertResponseMatches("expected/error-not-found.json", response);
+  }
+
+  @Test
   @DisplayName("UT-NOTE-012 deleteNote should return no content")
   @DataSet(value = "datasets/note-delete.yml", disableConstraints = true)
   void deleteNote_shouldReturnNoContent() throws Exception {
@@ -273,6 +305,27 @@ class NoteControllerTest extends ApiTestSupport {
         mockMvc
             .perform(
                 org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get(
+                        "/api/notes/{noteId}", "99999999-9999-9999-9999-999999999999")
+                    .sessionAttr("userId", "11111111-1111-1111-1111-111111111111")
+                    .accept(org.springframework.http.MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isNotFound())
+            .andExpect(MockMvcResultMatchers.header().exists("X-Trace-Id"))
+            .andExpect(MockMvcResultMatchers.content().contentType("application/json"))
+            .andReturn()
+            .getResponse()
+            .getContentAsString(StandardCharsets.UTF_8);
+
+    assertResponseMatches("expected/error-not-found.json", response);
+  }
+
+  @Test
+  @DisplayName("UT-NOTE-017 deleteNote should return not found")
+  @DataSet(value = "datasets/note-get.yml", disableConstraints = true)
+  void deleteNote_shouldReturnNotFound() throws Exception {
+    String response =
+        mockMvc
+            .perform(
+                org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete(
                         "/api/notes/{noteId}", "99999999-9999-9999-9999-999999999999")
                     .sessionAttr("userId", "11111111-1111-1111-1111-111111111111")
                     .accept(org.springframework.http.MediaType.APPLICATION_JSON))

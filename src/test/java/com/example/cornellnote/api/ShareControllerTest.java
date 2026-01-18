@@ -79,16 +79,61 @@ class ShareControllerTest extends ApiTestSupport {
             .getResponse()
             .getContentAsString(StandardCharsets.UTF_8);
 
-    assertResponseMatches("expected/error-share-not-found.json", response);
+    assertResponseMatches("expected/error-share-note-not-found.json", response);
+  }
+
+
+  @Test
+  @DisplayName("UT-SHARE-007 createShareLink should return not found")
+  @DataSet(value = "datasets/note-get.yml", disableConstraints = true)
+  void createShareLink_shouldReturnNotFound() throws Exception {
+    String response =
+        mockMvc
+            .perform(
+                org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post(
+                        "/api/notes/{noteId}/share", "99999999-9999-9999-9999-999999999999")
+                    .sessionAttr("userId", "11111111-1111-1111-1111-111111111111")
+                    .accept(org.springframework.http.MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isNotFound())
+            .andExpect(MockMvcResultMatchers.header().exists("X-Trace-Id"))
+            .andExpect(MockMvcResultMatchers.content().contentType("application/json"))
+            .andReturn()
+            .getResponse()
+            .getContentAsString(StandardCharsets.UTF_8);
+
+    assertResponseMatches("expected/error-not-found.json", response);
   }
 
   @Test
-  @DisplayName("UT-SHARE-004 revokeShare should return no content")
+  @DisplayName("UT-SHARE-008 getSharedNote should return not found for missing note")
+  @DataSet(value = "datasets/share-missing-note.yml", disableConstraints = true)
+  void getSharedNote_shouldReturnNotFoundForMissingNote() throws Exception {
+    String response =
+        performGet("/api/share/{token}", "missing-note")
+            .andExpect(MockMvcResultMatchers.status().isNotFound())
+            .andExpect(MockMvcResultMatchers.header().exists("X-Trace-Id"))
+            .andExpect(MockMvcResultMatchers.content().contentType("application/json"))
+            .andReturn()
+            .getResponse()
+            .getContentAsString(StandardCharsets.UTF_8);
+
+    assertResponseMatches("expected/error-share-note-not-found.json", response);
+  }
+
+  @Test
+  @DisplayName("UT-SHARE-009 revokeShare should return not found")
   @DataSet(value = "datasets/note-get.yml", disableConstraints = true)
-  void revokeShare_shouldReturnNoContent() throws Exception {
-    performDelete("/api/share/{token}", "abc123")
-        .andExpect(MockMvcResultMatchers.status().isNoContent())
-        .andExpect(MockMvcResultMatchers.content().string(""));
+  void revokeShare_shouldReturnNotFound() throws Exception {
+    String response =
+        performDelete("/api/share/{token}", "missing-token")
+            .andExpect(MockMvcResultMatchers.status().isNotFound())
+            .andExpect(MockMvcResultMatchers.header().exists("X-Trace-Id"))
+            .andExpect(MockMvcResultMatchers.content().contentType("application/json"))
+            .andReturn()
+            .getResponse()
+            .getContentAsString(StandardCharsets.UTF_8);
+
+    assertResponseMatches("expected/error-share-not-found.json", response);
   }
 
   @Test
@@ -123,6 +168,6 @@ class ShareControllerTest extends ApiTestSupport {
             .getResponse()
             .getContentAsString(StandardCharsets.UTF_8);
 
-    assertResponseMatches("expected/error-share-not-found.json", response);
+    assertResponseMatches("expected/error-share-note-not-found.json", response);
   }
 }
