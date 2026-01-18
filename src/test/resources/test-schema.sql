@@ -47,3 +47,23 @@ CREATE TABLE note_tags (
   tag_id uuid NOT NULL,
   PRIMARY KEY (note_id, tag_id)
 );
+
+CREATE TABLE share_tokens (
+  id uuid PRIMARY KEY,
+  note_id uuid NOT NULL,
+  token_hash text NOT NULL,
+  status text NOT NULL,
+  expires_at timestamp,
+  created_at timestamp NOT NULL,
+  revoked_at timestamp
+);
+
+CREATE TABLE export_jobs (
+  id uuid PRIMARY KEY,
+  note_id uuid NOT NULL,
+  status text NOT NULL,
+  output_ref text,
+  error_message text,
+  created_at timestamp NOT NULL,
+  completed_at timestamp
+);

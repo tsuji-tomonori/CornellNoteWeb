@@ -24,54 +24,58 @@ public class ShareService {
 
   public ShareLinkResponse createShareLink(String noteId) {
     UUID noteUuid = parseUuid(noteId, "noteId");
-    Note note = noteRepository.findById(noteUuid)
-        .orElseThrow(() -> new NotFoundException("Note not found"));
+    Note note =
+        noteRepository
+            .findById(noteUuid)
+            .orElseThrow(() -> new NotFoundException("Note not found"));
     UUID shareToken = UUID.randomUUID();
     Instant now = Instant.now();
-    ShareToken record = new ShareToken(
-        UUID.randomUUID(),
-        note.getId(),
-        shareToken.toString(),
-        "active",
-        null,
-        now,
-        null
-    );
+    ShareToken record =
+        new ShareToken(
+            UUID.randomUUID(), note.getId(), shareToken.toString(), "active", null, now, null);
     shareTokenRepository.save(record);
     String url = "http://localhost:3000/share.html?token=" + shareToken;
     return new ShareLinkResponse(shareToken, url, note.getId(), now);
   }
 
   public PublicNoteResponse getSharedNote(String token) {
-    ShareToken record = shareTokenRepository.findByTokenHash(token)
-        .orElseThrow(() -> new NotFoundException("Shared note not found"));
+    ShareToken record =
+        shareTokenRepository
+            .findByTokenHash(token)
+            .orElseThrow(() -> new NotFoundException("Shared note not found"));
     if (!"active".equals(record.getStatus()) || isExpired(record.getExpiresAt())) {
       throw new NotFoundException("Shared note not found");
     }
-    Note note = noteRepository.findById(record.getNoteId())
-        .orElseThrow(() -> new NotFoundException("Shared note not found"));
+    Note note =
+        noteRepository
+            .findById(record.getNoteId())
+            .orElseThrow(() -> new NotFoundException("Shared note not found"));
     return new PublicNoteResponse(
         note.getId(),
         safeText(note.getTitle()),
         safeText(note.getCueRef()),
         safeText(note.getContentRef()),
         safeText(note.getSummaryRef()),
-        note.getCreatedAt()
-    );
+        note.getCreatedAt());
   }
 
   public void revokeShareLink(String token) {
-    ShareToken record = shareTokenRepository.findByTokenHash(token)
-        .orElseThrow(() -> new NotFoundException("Share link not found"));
-    ShareToken revoked = new ShareToken(
-        record.getId(),
-        record.getNoteId(),
-        record.getTokenHash(),
-        "revoked",
-        record.getExpiresAt(),
-        record.getCreatedAt(),
-        Instant.now()
-    );
+    ShareToken record =
+        shareTokenRepository
+            .findByTokenHash(token)
+            .orElseThrow(() -> new NotFoundException("Share link not found"));
+    if ("revoked".equals(record.getStatus())) {
+      return;
+    }
+    ShareToken revoked =
+        new ShareToken(
+            record.getId(),
+            record.getNoteId(),
+            record.getTokenHash(),
+            "revoked",
+            record.getExpiresAt(),
+            record.getCreatedAt(),
+            Instant.now());
     shareTokenRepository.save(revoked);
   }
 
