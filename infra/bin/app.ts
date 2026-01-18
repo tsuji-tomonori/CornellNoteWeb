@@ -11,5 +11,5 @@ const region = process.env.CDK_DEFAULT_REGION;
 new CornellNoteStack(app, `CornellNote-${envName}`, {
   env: account && region ? { account, region } : undefined,
   description: "CornellNote infrastructure stack",
-  envName,
+  envName
 });

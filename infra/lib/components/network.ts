@@ -18,9 +18,9 @@ export class NetworkComponent extends Construct {
       subnetConfiguration: [
         {
           name: "isolated",
-          subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
-        },
-      ],
+          subnetType: ec2.SubnetType.PRIVATE_ISOLATED
+        }
+      ]
     });
 
     cdk.Tags.of(this.vpc).add("Name", `cornellnote-${props.envName}-vpc`);

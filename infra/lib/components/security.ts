@@ -14,7 +14,7 @@ export class SecurityComponent extends Construct {
     this.appSecurityGroup = new ec2.SecurityGroup(this, "AppSecurityGroup", {
       vpc: props.vpc,
       description: "Security group for app lambdas",
-      allowAllOutbound: true,
+      allowAllOutbound: true
     });
   }
 }

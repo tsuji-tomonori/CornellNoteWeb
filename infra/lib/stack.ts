@@ -25,22 +25,22 @@ export class CornellNoteStack extends cdk.Stack {
     Tags.of(this).add("costCenter", "product");
 
     const network = new NetworkComponent(this, "Network", {
-      envName: props.envName,
+      envName: props.envName
     });
 
     const storage = new StorageComponent(this, "Storage");
 
     const database = new DatabaseComponent(this, "Database", {
       vpc: network.vpc,
-      envName: props.envName,
+      envName: props.envName
     });
 
     const queue = new QueueComponent(this, "Queue", {
-      envName: props.envName,
+      envName: props.envName
     });
 
     new EmailComponent(this, "Email", {
-      domain: "example.com",
+      domain: "example.com"
     });
 
     const app = new AppComponent(this, "App", {
@@ -48,17 +48,17 @@ export class CornellNoteStack extends cdk.Stack {
       dbCluster: database.cluster,
       storageBucket: storage.bucket,
       queue: queue.queue,
-      envName: props.envName,
+      envName: props.envName
     });
 
     const api = new ApiComponent(this, "Api", {
       handler: app.apiLambda,
-      envName: props.envName,
+      envName: props.envName
     });
 
     new ObservabilityComponent(this, "Observability", {
       api: api.api,
-      lambdas: [app.apiLambda, app.workerLambda],
+      lambdas: [app.apiLambda, app.workerLambda]
     });
   }
 }

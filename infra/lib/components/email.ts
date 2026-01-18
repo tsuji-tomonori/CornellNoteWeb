@@ -12,7 +12,7 @@ export class EmailComponent extends Construct {
     super(scope, id);
 
     this.identity = new ses.EmailIdentity(this, "SesIdentity", {
-      identity: ses.Identity.domain(props.domain),
+      identity: ses.Identity.domain(props.domain)
     });
   }
 }

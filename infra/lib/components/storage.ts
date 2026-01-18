@@ -15,9 +15,9 @@ export class StorageComponent extends Construct {
       objectOwnership: s3.ObjectOwnership.BUCKET_OWNER_PREFERRED,
       lifecycleRules: [
         {
-          expiration: cdk.Duration.days(365),
-        },
-      ],
+          expiration: cdk.Duration.days(365)
+        }
+      ]
     });
 
     this.bucket = new s3.Bucket(this, "NotesBucket", {
@@ -32,15 +32,15 @@ export class StorageComponent extends Construct {
           transitions: [
             {
               storageClass: s3.StorageClass.INFREQUENT_ACCESS,
-              transitionAfter: cdk.Duration.days(90),
-            },
+              transitionAfter: cdk.Duration.days(90)
+            }
           ],
-          noncurrentVersionExpiration: cdk.Duration.days(90),
+          noncurrentVersionExpiration: cdk.Duration.days(90)
         },
         {
-          expiration: cdk.Duration.days(365 * 3),
-        },
-      ],
+          expiration: cdk.Duration.days(365 * 3)
+        }
+      ]
     });
   }
 }

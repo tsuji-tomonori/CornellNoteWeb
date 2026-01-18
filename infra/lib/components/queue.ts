@@ -16,7 +16,7 @@ export class QueueComponent extends Construct {
     const deadLetterQueue = new sqs.Queue(this, "WorkerDlq", {
       queueName: `cornellnote-${props.envName}-worker-dlq`,
       retentionPeriod: cdk.Duration.days(14),
-      encryption: sqs.QueueEncryption.KMS_MANAGED,
+      encryption: sqs.QueueEncryption.KMS_MANAGED
     });
 
     deadLetterQueue.addToResourcePolicy(
@@ -28,9 +28,9 @@ export class QueueComponent extends Construct {
         resources: [deadLetterQueue.queueArn],
         conditions: {
           Bool: {
-            "aws:SecureTransport": "false",
-          },
-        },
+            "aws:SecureTransport": "false"
+          }
+        }
       })
     );
 
@@ -41,8 +41,8 @@ export class QueueComponent extends Construct {
       encryption: sqs.QueueEncryption.KMS_MANAGED,
       deadLetterQueue: {
         queue: deadLetterQueue,
-        maxReceiveCount: 5,
-      },
+        maxReceiveCount: 5
+      }
     });
 
     this.queue.addToResourcePolicy(
@@ -54,9 +54,9 @@ export class QueueComponent extends Construct {
         resources: [this.queue.queueArn],
         conditions: {
           Bool: {
-            "aws:SecureTransport": "false",
-          },
-        },
+            "aws:SecureTransport": "false"
+          }
+        }
       })
     );
   }

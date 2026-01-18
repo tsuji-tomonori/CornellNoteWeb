@@ -17,27 +17,23 @@ export class DatabaseComponent extends Construct {
   constructor(scope: Construct, id: string, props: DatabaseComponentProps) {
     super(scope, id);
 
-    const engineVersion = rds.AuroraPostgresEngineVersion.of(
-      "16.10",
-      "16",
-      {
-        serverlessV2AutoPauseSupported: true,
-      }
-    );
+    const engineVersion = rds.AuroraPostgresEngineVersion.of("16.10", "16", {
+      serverlessV2AutoPauseSupported: true
+    });
 
     const subnetGroup = new rds.SubnetGroup(this, "DbSubnetGroup", {
       vpc: props.vpc,
       description: "Isolated subnets for Aurora",
-      vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_ISOLATED },
+      vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_ISOLATED }
     });
 
     this.cluster = new rds.DatabaseCluster(this, "AuroraCluster", {
       engine: rds.DatabaseClusterEngine.auroraPostgres({
-        version: engineVersion,
+        version: engineVersion
       }),
       writer: rds.ClusterInstance.serverlessV2("writer", {
         publiclyAccessible: false,
-        enablePerformanceInsights: false,
+        enablePerformanceInsights: false
       }),
       vpc: props.vpc,
       vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_ISOLATED },
@@ -46,7 +42,7 @@ export class DatabaseComponent extends Construct {
       storageEncrypted: true,
       backup: {
         retention: cdk.Duration.days(7),
-        preferredWindow: "18:00-19:00",
+        preferredWindow: "18:00-19:00"
       },
       iamAuthentication: true,
       enableDataApi: true,
@@ -55,7 +51,7 @@ export class DatabaseComponent extends Construct {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       publiclyAccessible: false,
       deletionProtection: false,
-      cloudwatchLogsExports: ["postgresql"],
+      cloudwatchLogsExports: ["postgresql"]
     });
 
     const secret = this.cluster.secret;
@@ -68,7 +64,7 @@ export class DatabaseComponent extends Construct {
     clusterResource.serverlessV2ScalingConfiguration = {
       minCapacity: 0,
       maxCapacity: 2,
-      secondsUntilAutoPause: 300,
+      secondsUntilAutoPause: 300
     };
 
     const secretResource = this.cluster.node.findChild("Secret");
@@ -77,8 +73,8 @@ export class DatabaseComponent extends Construct {
       [
         {
           id: "AwsSolutions-SMG4",
-          reason: "Aurora Serverless v2の自動ローテーションは運用手順で管理",
-        },
+          reason: "Aurora Serverless v2の自動ローテーションは運用手順で管理"
+        }
       ],
       true
     );

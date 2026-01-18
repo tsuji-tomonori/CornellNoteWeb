@@ -16,7 +16,7 @@ export class ObservabilityComponent extends Construct {
       metric: props.api.metricServerError(),
       threshold: 1,
       evaluationPeriods: 1,
-      datapointsToAlarm: 1,
+      datapointsToAlarm: 1
     });
 
     props.lambdas.forEach((fn, index) => {
@@ -24,7 +24,7 @@ export class ObservabilityComponent extends Construct {
         metric: fn.metricErrors(),
         threshold: 1,
         evaluationPeriods: 1,
-        datapointsToAlarm: 1,
+        datapointsToAlarm: 1
       });
     });
   }

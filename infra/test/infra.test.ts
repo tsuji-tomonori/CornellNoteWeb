@@ -6,18 +6,20 @@ import { CornellNoteStack } from "../lib/stack";
 const createTemplate = (envName = "dev") => {
   const app = new App({
     context: {
-      env: envName,
-    },
+      env: envName
+    }
   });
   const stack = new CornellNoteStack(app, `CornellNote-${envName}`, {
-    envName,
+    envName
   });
-  Aspects.of(stack).add(new AwsSolutionsChecks({
-    verbose: true,
-  }));
+  Aspects.of(stack).add(
+    new AwsSolutionsChecks({
+      verbose: true
+    })
+  );
   return {
     stack,
-    template: Template.fromStack(stack),
+    template: Template.fromStack(stack)
   };
 };
 
@@ -28,9 +30,9 @@ describe("CornellNote Infra Assertions", () => {
     template.hasResourceProperties("AWS::ApiGatewayV2::Stage", {
       AccessLogSettings: {
         DestinationArn: {
-          "Fn::GetAtt": [Match.anyValue(), "Arn"],
-        },
-      },
+          "Fn::GetAtt": [Match.anyValue(), "Arn"]
+        }
+      }
     });
   });
 
@@ -38,8 +40,8 @@ describe("CornellNote Infra Assertions", () => {
     template.hasResourceProperties("AWS::ApiGatewayV2::Stage", {
       DefaultRouteSettings: {
         ThrottlingBurstLimit: 200,
-        ThrottlingRateLimit: 100,
-      },
+        ThrottlingRateLimit: 100
+      }
     });
   });
 
@@ -49,9 +51,9 @@ describe("CornellNote Infra Assertions", () => {
       Environment: {
         Variables: {
           DB_CLUSTER_ARN: Match.anyValue(),
-          DB_SECRET_ARN: Match.anyValue(),
-        },
-      },
+          DB_SECRET_ARN: Match.anyValue()
+        }
+      }
     });
   });
 
@@ -59,15 +61,15 @@ describe("CornellNote Infra Assertions", () => {
     template.hasResourceProperties("AWS::Lambda::Function", {
       FunctionName: "cornellnote-dev-api",
       TracingConfig: {
-        Mode: "Active",
-      },
+        Mode: "Active"
+      }
     });
   });
 
   test("INF-API-005 Lambda App has reserved concurrency", () => {
     template.hasResourceProperties("AWS::Lambda::Function", {
       FunctionName: "cornellnote-dev-api",
-      ReservedConcurrentExecutions: 50,
+      ReservedConcurrentExecutions: 50
     });
   });
 
@@ -76,24 +78,25 @@ describe("CornellNote Infra Assertions", () => {
       FunctionName: "cornellnote-dev-api",
       Environment: {
         Variables: {
-          STAGE: "dev",
-        },
-      },
+          STAGE: "dev"
+        }
+      }
     });
   });
 
   test("INF-API-007 Lambda App log retention is at least 30 days", () => {
     template.hasResourceProperties("AWS::Logs::LogGroup", {
-      RetentionInDays: 30,
+      RetentionInDays: 30
     });
   });
 
   test("INF-API-008 Lambda policies are least-privilege", () => {
     const policies = template.findResources("AWS::IAM::Policy");
     const policyValues = Object.values(policies);
-    const hasAdmin = policyValues.some((policy) =>
-      JSON.stringify(policy).includes("\"Action\":[\"*\"]") &&
-      JSON.stringify(policy).includes("\"Resource\":\"*\"")
+    const hasAdmin = policyValues.some(
+      (policy) =>
+        JSON.stringify(policy).includes('"Action":["*"]') &&
+        JSON.stringify(policy).includes('"Resource":"*"')
     );
     expect(hasAdmin).toBe(false);
   });
@@ -104,19 +107,19 @@ describe("CornellNote Infra Assertions", () => {
 
   test("INF-DATA-002 Aurora storage is encrypted", () => {
     template.hasResourceProperties("AWS::RDS::DBCluster", {
-      StorageEncrypted: true,
+      StorageEncrypted: true
     });
   });
 
   test("INF-DATA-003 Aurora backups are retained", () => {
     template.hasResourceProperties("AWS::RDS::DBCluster", {
-      BackupRetentionPeriod: 7,
+      BackupRetentionPeriod: 7
     });
   });
 
   test("INF-DATA-004 Aurora is not publicly accessible", () => {
     template.hasResourceProperties("AWS::RDS::DBInstance", {
-      PubliclyAccessible: false,
+      PubliclyAccessible: false
     });
   });
 
@@ -125,14 +128,14 @@ describe("CornellNote Infra Assertions", () => {
       ServerlessV2ScalingConfiguration: {
         MinCapacity: 0,
         MaxCapacity: 2,
-        SecondsUntilAutoPause: 300,
-      },
+        SecondsUntilAutoPause: 300
+      }
     });
   });
 
   test("INF-DATA-006 Aurora exports logs", () => {
     template.hasResourceProperties("AWS::RDS::DBCluster", {
-      EnableCloudwatchLogsExports: ["postgresql"],
+      EnableCloudwatchLogsExports: ["postgresql"]
     });
   });
 
@@ -142,11 +145,11 @@ describe("CornellNote Infra Assertions", () => {
         ServerSideEncryptionConfiguration: [
           {
             ServerSideEncryptionByDefault: {
-              SSEAlgorithm: "AES256",
-            },
-          },
-        ],
-      },
+              SSEAlgorithm: "AES256"
+            }
+          }
+        ]
+      }
     });
   });
 
@@ -155,10 +158,10 @@ describe("CornellNote Infra Assertions", () => {
       LifecycleConfiguration: {
         Rules: Match.arrayWith([
           Match.objectLike({
-            Status: "Enabled",
-          }),
-        ]),
-      },
+            Status: "Enabled"
+          })
+        ])
+      }
     });
   });
 
@@ -166,15 +169,15 @@ describe("CornellNote Infra Assertions", () => {
     template.hasResourceProperties("AWS::SQS::Queue", {
       RedrivePolicy: {
         deadLetterTargetArn: {
-          "Fn::GetAtt": [Match.anyValue(), "Arn"],
-        },
-      },
+          "Fn::GetAtt": [Match.anyValue(), "Arn"]
+        }
+      }
     });
   });
 
   test("INF-ASYNC-002 SQS is encrypted", () => {
     template.hasResourceProperties("AWS::SQS::Queue", {
-      KmsMasterKeyId: Match.anyValue(),
+      KmsMasterKeyId: Match.anyValue()
     });
   });
 
@@ -192,16 +195,17 @@ describe("CornellNote Infra Assertions", () => {
 
   test("INF-OPS-002 Access log retention exists", () => {
     template.hasResourceProperties("AWS::Logs::LogGroup", {
-      RetentionInDays: 30,
+      RetentionInDays: 30
     });
   });
 
   test("INF-OPS-003 No admin IAM policies", () => {
     const policies = template.findResources("AWS::IAM::Policy");
     const policyValues = Object.values(policies);
-    const hasAdmin = policyValues.some((policy) =>
-      JSON.stringify(policy).includes("\"Action\":[\"*\"]") &&
-      JSON.stringify(policy).includes("\"Resource\":\"*\"")
+    const hasAdmin = policyValues.some(
+      (policy) =>
+        JSON.stringify(policy).includes('"Action":["*"]') &&
+        JSON.stringify(policy).includes('"Resource":"*"')
     );
     expect(hasAdmin).toBe(false);
   });
@@ -210,5 +214,4 @@ describe("CornellNote Infra Assertions", () => {
     const annotations = Annotations.fromStack(stack);
     annotations.hasNoError("*", Match.anyValue());
   });
-
 });

@@ -17,12 +17,12 @@ export class ApiComponent extends Construct {
     super(scope, id);
 
     const accessLogs = new logs.LogGroup(this, "ApiAccessLogs", {
-      retention: logs.RetentionDays.ONE_MONTH,
+      retention: logs.RetentionDays.ONE_MONTH
     });
 
     const api = new apigwv2.CfnApi(this, "HttpApi", {
       name: `cornellnote-${props.envName}-http-api`,
-      protocolType: "HTTP",
+      protocolType: "HTTP"
     });
 
     const integration = new apigwv2.CfnIntegration(this, "ApiIntegration", {
@@ -30,14 +30,14 @@ export class ApiComponent extends Construct {
       integrationType: "AWS_PROXY",
       integrationUri: props.handler.functionArn,
       payloadFormatVersion: "2.0",
-      integrationMethod: "POST",
+      integrationMethod: "POST"
     });
 
     const route = new apigwv2.CfnRoute(this, "ApiRoute", {
       apiId: api.ref,
       routeKey: "ANY /{proxy+}",
       authorizationType: "AWS_IAM",
-      target: `integrations/${integration.ref}`,
+      target: `integrations/${integration.ref}`
     });
 
     const stage = new apigwv2.CfnStage(this, "DefaultStage", {
@@ -53,19 +53,19 @@ export class ApiComponent extends Construct {
           routeKey: "$context.routeKey",
           status: "$context.status",
           responseLength: "$context.responseLength",
-          integrationError: "$context.integrationErrorMessage",
-        }),
+          integrationError: "$context.integrationErrorMessage"
+        })
       },
       defaultRouteSettings: {
         throttlingBurstLimit: 200,
-        throttlingRateLimit: 100,
-      },
+        throttlingRateLimit: 100
+      }
     });
     stage.addDependency(route);
 
     this.api = apigwv2.HttpApi.fromHttpApiAttributes(this, "HttpApiRef", {
       httpApiId: api.ref,
-      apiEndpoint: api.attrApiEndpoint,
+      apiEndpoint: api.attrApiEndpoint
     });
 
     props.handler.addPermission("ApiInvoke", {
@@ -73,9 +73,8 @@ export class ApiComponent extends Construct {
       sourceArn: cdk.Stack.of(this).formatArn({
         service: "execute-api",
         resource: api.ref,
-        resourceName: "*/*",
-      }),
+        resourceName: "*/*"
+      })
     });
-
   }
 }
