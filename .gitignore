@@ -203,3 +203,6 @@ dist
 
 # End of https://www.toptal.com/developers/gitignore/api/node
 playwright-report/
+
+# CDK output
+**/cdk.out/
