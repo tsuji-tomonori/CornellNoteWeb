@@ -49,7 +49,6 @@ export class DatabaseComponent extends Construct {
       serverlessV2MinCapacity: 0,
       serverlessV2MaxCapacity: 2,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
-      publiclyAccessible: false,
       deletionProtection: false,
       cloudwatchLogsExports: ["postgresql"]
     });

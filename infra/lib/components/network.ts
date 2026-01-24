@@ -13,7 +13,7 @@ export class NetworkComponent extends Construct {
     super(scope, id);
 
     this.vpc = new ec2.Vpc(this, "Vpc", {
-      maxAzs: 1,
+      maxAzs: 2,
       natGateways: 0,
       subnetConfiguration: [
         {

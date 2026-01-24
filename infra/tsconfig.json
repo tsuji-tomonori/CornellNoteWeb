@@ -20,5 +20,5 @@
     "forceConsistentCasingInFileNames": true,
     "outDir": "dist"
   },
-  "include": ["bin", "lib"]
+  "include": ["bin", "lib", "scripts"]
 }

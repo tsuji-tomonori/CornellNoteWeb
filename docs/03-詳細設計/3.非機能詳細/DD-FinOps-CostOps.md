@@ -42,16 +42,16 @@ NFR-COST-001〜005
 | VPC付随リソース | Network/Vpc (auto) | CDK自動生成 | 1式 | 0 | isolated subnet x1、RouteTable |
 | S3 Bucket | Storage/NotesBucket | CDK自動生成 | 1 | 275 | 50GB想定 |
 | S3 Bucket | Storage/NotesAccessLogs | CDK自動生成 | 1 | 25 | 5GB想定 |
-| RDS Subnet Group | Database/DbSubnetGroup | CDK自動生成 | 1 | 0 | | 
+| RDS Subnet Group | Database/DbSubnetGroup | CDK自動生成 | 1 | 0 | |
 | Aurora Serverless v2 | Database/AuroraCluster | CDK自動生成 | 1 | 5,050 | 平均0.5 ACU + 50GB storage + 50GB backup |
 | Secrets Manager | Database/AuroraCluster/Secret | CDK自動生成 | 1 | 60 | DB認証情報 |
 | SQS Queue | Queue/WorkerQueue | cornellnote-${env}-worker | 1 | 60 | 100万リクエスト想定 |
 | SQS DLQ | Queue/WorkerDlq | cornellnote-${env}-worker-dlq | 1 | 0 | DLQ分は上記に含む |
 | Lambda | App/ApiLambda | cornellnote-${env}-api | 1 | 1,040 | 100万回/200ms/2GB |
 | Lambda | App/WorkerLambda | cornellnote-${env}-worker | 1 | 5,040 | 100万回/1s/2GB |
-| IAM Role/Policy | App/ApiLambdaRole, App/WorkerLambdaRole | CDK自動生成 | 2 | 0 | | 
+| IAM Role/Policy | App/ApiLambdaRole, App/WorkerLambdaRole | CDK自動生成 | 2 | 0 | |
 | API Gateway (HTTP API) | Api/HttpApi | cornellnote-${env}-http-api | 1 | 150 | 100万リクエスト想定 |
-| API Gateway付随 | Api/ApiIntegration, Api/ApiRoute, Api/DefaultStage | CDK自動生成 | 1式 | 0 | | 
+| API Gateway付随 | Api/ApiIntegration, Api/ApiRoute, Api/DefaultStage | CDK自動生成 | 1式 | 0 | |
 | CloudWatch Logs | App/ApiLogGroup, App/WorkerLogGroup, Api/ApiAccessLogs, Database/AuroraCluster (postgresql) | CDK自動生成 | 4 | 450 | ingest 5GB + 保存10GB |
 | CloudWatch Alarms | Observability/Api5xxAlarm, Observability/LambdaErrorAlarm0/1 | CDK自動生成 | 3 | 50 | 標準アラーム |
 | SES Email Identity | Email/SesIdentity | example.com | 1 | 0 | Identityのみ |
