@@ -9,6 +9,4 @@ public record ExportJobResponse(
     String status,
     String downloadUrl,
     Instant createdAt,
-    Instant updatedAt
-) {
-}
+    Instant updatedAt) {}

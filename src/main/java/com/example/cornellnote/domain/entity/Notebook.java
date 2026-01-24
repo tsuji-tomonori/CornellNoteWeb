@@ -10,8 +10,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "notebooks")
 public class Notebook {
-  @Id
-  private UUID id;
+  @Id private UUID id;
 
   @Column(name = "user_id", nullable = false)
   private UUID userId;
@@ -31,10 +30,15 @@ public class Notebook {
   @Column(name = "deleted_at")
   private Instant deletedAt;
 
-  protected Notebook() {
-  }
+  protected Notebook() {}
 
-  public Notebook(UUID id, UUID userId, String name, int sortOrder, Instant createdAt, Instant updatedAt,
+  public Notebook(
+      UUID id,
+      UUID userId,
+      String name,
+      int sortOrder,
+      Instant createdAt,
+      Instant updatedAt,
       Instant deletedAt) {
     this.id = id;
     this.userId = userId;

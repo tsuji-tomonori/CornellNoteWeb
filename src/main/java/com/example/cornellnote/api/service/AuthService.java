@@ -16,9 +16,7 @@ public class AuthService {
     return new AuthSession(UUID.randomUUID(), request.email(), request.email().split("@")[0]);
   }
 
-  public void logout() {
-  }
+  public void logout() {}
 
-  public void requestPasswordReset(PasswordResetRequest request) {
-  }
+  public void requestPasswordReset(PasswordResetRequest request) {}
 }

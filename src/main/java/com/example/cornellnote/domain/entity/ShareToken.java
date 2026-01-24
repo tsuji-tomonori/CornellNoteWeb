@@ -10,8 +10,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "share_tokens")
 public class ShareToken {
-  @Id
-  private UUID id;
+  @Id private UUID id;
 
   @Column(name = "note_id", nullable = false)
   private UUID noteId;
@@ -31,11 +30,16 @@ public class ShareToken {
   @Column(name = "revoked_at")
   private Instant revokedAt;
 
-  protected ShareToken() {
-  }
+  protected ShareToken() {}
 
-  public ShareToken(UUID id, UUID noteId, String tokenHash, String status, Instant expiresAt,
-      Instant createdAt, Instant revokedAt) {
+  public ShareToken(
+      UUID id,
+      UUID noteId,
+      String tokenHash,
+      String status,
+      Instant expiresAt,
+      Instant createdAt,
+      Instant revokedAt) {
     this.id = id;
     this.noteId = noteId;
     this.tokenHash = tokenHash;

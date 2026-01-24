@@ -4,9 +4,4 @@ import java.time.Instant;
 import java.util.UUID;
 
 public record NotebookResponse(
-    UUID notebookId,
-    String name,
-    Instant createdAt,
-    Instant updatedAt
-) {
-}
+    UUID notebookId, String name, Instant createdAt, Instant updatedAt) {}

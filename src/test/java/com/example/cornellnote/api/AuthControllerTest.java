@@ -2,15 +2,15 @@ package com.example.cornellnote.api;
 
 import com.example.cornellnote.api.dto.AuthCredentials;
 import com.example.cornellnote.api.support.ApiTestSupport;
+import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.http.MediaType;
-import java.nio.charset.StandardCharsets;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -21,12 +21,13 @@ class AuthControllerTest extends ApiTestSupport {
   void signup_shouldReturnSession() throws Exception {
     AuthCredentials request = new AuthCredentials("demo@example.com", "Pass1234!");
 
-    String response = performPostJson("/api/auth/signup", request)
-        .andExpect(MockMvcResultMatchers.status().isCreated())
-        .andExpect(MockMvcResultMatchers.content().contentType("application/json"))
-        .andReturn()
-        .getResponse()
-        .getContentAsString(StandardCharsets.UTF_8);
+    String response =
+        performPostJson("/api/auth/signup", request)
+            .andExpect(MockMvcResultMatchers.status().isCreated())
+            .andExpect(MockMvcResultMatchers.content().contentType("application/json"))
+            .andReturn()
+            .getResponse()
+            .getContentAsString(StandardCharsets.UTF_8);
 
     assertResponseMatches("expected/auth-signup.json", response);
     com.fasterxml.jackson.databind.JsonNode node = objectMapper.readTree(response);
@@ -35,19 +36,19 @@ class AuthControllerTest extends ApiTestSupport {
         .isNotBlank();
   }
 
-
   @Test
   @DisplayName("UT-AUTH-004 login should validate request")
   void login_shouldValidateRequest() throws Exception {
     AuthCredentials request = new AuthCredentials("", "");
 
-    String response = performPostJson("/api/auth/login", request)
-        .andExpect(MockMvcResultMatchers.status().isBadRequest())
-        .andExpect(MockMvcResultMatchers.header().exists("X-Trace-Id"))
-        .andExpect(MockMvcResultMatchers.content().contentType("application/json"))
-        .andReturn()
-        .getResponse()
-        .getContentAsString(StandardCharsets.UTF_8);
+    String response =
+        performPostJson("/api/auth/login", request)
+            .andExpect(MockMvcResultMatchers.status().isBadRequest())
+            .andExpect(MockMvcResultMatchers.header().exists("X-Trace-Id"))
+            .andExpect(MockMvcResultMatchers.content().contentType("application/json"))
+            .andReturn()
+            .getResponse()
+            .getContentAsString(StandardCharsets.UTF_8);
 
     assertResponseMatches("expected/error-validation.json", response);
   }
@@ -55,7 +56,8 @@ class AuthControllerTest extends ApiTestSupport {
   @Test
   @DisplayName("UT-AUTH-006 logout should return no content")
   void logout_shouldReturnNoContent() throws Exception {
-    mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/logout"))
+    mockMvc
+        .perform(MockMvcRequestBuilders.post("/api/auth/logout"))
         .andExpect(MockMvcResultMatchers.status().isNoContent())
         .andExpect(MockMvcResultMatchers.content().string(""));
   }
@@ -65,9 +67,11 @@ class AuthControllerTest extends ApiTestSupport {
   void requestPasswordReset_shouldAccept() throws Exception {
     String body = "{\"email\":\"demo@example.com\"}";
 
-    mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/password/reset")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(body))
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post("/api/auth/password/reset")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body))
         .andExpect(MockMvcResultMatchers.status().isAccepted())
         .andExpect(MockMvcResultMatchers.content().string(""));
   }

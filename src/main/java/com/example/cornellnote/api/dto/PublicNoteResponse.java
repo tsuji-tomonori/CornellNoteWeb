@@ -6,6 +6,4 @@ public record PublicNoteResponse(
     String cue,
     String notes,
     String summary,
-    java.time.Instant createdAt
-) {
-}
+    java.time.Instant createdAt) {}

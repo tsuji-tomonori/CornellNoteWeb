@@ -22,8 +22,8 @@ class AuthControllerSessionTest extends ApiTestSupport {
     MockHttpSession session = new MockHttpSession();
     session.setAttribute("userId", "11111111-1111-1111-1111-111111111111");
 
-    mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/logout")
-            .session(session))
+    mockMvc
+        .perform(MockMvcRequestBuilders.post("/api/auth/logout").session(session))
         .andExpect(MockMvcResultMatchers.status().isNoContent())
         .andExpect(MockMvcResultMatchers.content().string(""));
 
@@ -36,14 +36,15 @@ class AuthControllerSessionTest extends ApiTestSupport {
     AuthCredentials request = new AuthCredentials("demo@example.com", "Pass1234!");
     MockHttpSession session = new MockHttpSession();
 
-    mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/login")
-            .session(session)
-            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(request)))
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post("/api/auth/login")
+                .session(session)
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
         .andExpect(MockMvcResultMatchers.status().isOk());
 
-    Assertions.assertThat(session.getAttribute("userId"))
-        .isInstanceOf(java.util.UUID.class);
+    Assertions.assertThat(session.getAttribute("userId")).isInstanceOf(java.util.UUID.class);
   }
 
   @Test
@@ -52,14 +53,17 @@ class AuthControllerSessionTest extends ApiTestSupport {
     AuthCredentials request = new AuthCredentials("demo@example.com", "Pass1234!");
     MockHttpSession session = new MockHttpSession();
 
-    String response = mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/signup")
-            .session(session)
-            .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(request)))
-        .andExpect(MockMvcResultMatchers.status().isCreated())
-        .andReturn()
-        .getResponse()
-        .getContentAsString(java.nio.charset.StandardCharsets.UTF_8);
+    String response =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.post("/api/auth/signup")
+                    .session(session)
+                    .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(request)))
+            .andExpect(MockMvcResultMatchers.status().isCreated())
+            .andReturn()
+            .getResponse()
+            .getContentAsString(java.nio.charset.StandardCharsets.UTF_8);
 
     Assertions.assertThat(session.getAttribute("userId"))
         .as("signup should set session userId")

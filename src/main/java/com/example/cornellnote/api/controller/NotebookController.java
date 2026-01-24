@@ -16,7 +16,8 @@ public class NotebookController {
   private final NotebookService notebookService;
   private final SessionUserIdResolver sessionUserIdResolver;
 
-  public NotebookController(NotebookService notebookService, SessionUserIdResolver sessionUserIdResolver) {
+  public NotebookController(
+      NotebookService notebookService, SessionUserIdResolver sessionUserIdResolver) {
     this.notebookService = notebookService;
     this.sessionUserIdResolver = sessionUserIdResolver;
   }

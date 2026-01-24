@@ -10,8 +10,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "export_jobs")
 public class ExportJob {
-  @Id
-  private UUID id;
+  @Id private UUID id;
 
   @Column(name = "note_id", nullable = false)
   private UUID noteId;
@@ -31,11 +30,16 @@ public class ExportJob {
   @Column(name = "completed_at")
   private Instant completedAt;
 
-  protected ExportJob() {
-  }
+  protected ExportJob() {}
 
-  public ExportJob(UUID id, UUID noteId, String status, String outputRef, String errorMessage,
-      Instant createdAt, Instant completedAt) {
+  public ExportJob(
+      UUID id,
+      UUID noteId,
+      String status,
+      String outputRef,
+      String errorMessage,
+      Instant createdAt,
+      Instant completedAt) {
     this.id = id;
     this.noteId = noteId;
     this.status = status;

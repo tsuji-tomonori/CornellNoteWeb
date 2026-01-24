@@ -23,14 +23,16 @@ public class AuthController {
   }
 
   @PostMapping("/signup")
-  public ResponseEntity<AuthSession> signup(@Valid @RequestBody AuthCredentials request, HttpSession session) {
+  public ResponseEntity<AuthSession> signup(
+      @Valid @RequestBody AuthCredentials request, HttpSession session) {
     AuthSession authSession = authService.signup(request);
     session.setAttribute("userId", authSession.userId());
     return ResponseEntity.status(HttpStatus.CREATED).body(authSession);
   }
 
   @PostMapping("/login")
-  public ResponseEntity<AuthSession> login(@Valid @RequestBody AuthCredentials request, HttpSession session) {
+  public ResponseEntity<AuthSession> login(
+      @Valid @RequestBody AuthCredentials request, HttpSession session) {
     AuthSession authSession = authService.login(request);
     session.setAttribute("userId", authSession.userId());
     return ResponseEntity.ok(authSession);
@@ -44,7 +46,8 @@ public class AuthController {
   }
 
   @PostMapping("/password/reset")
-  public ResponseEntity<Void> requestPasswordReset(@Valid @RequestBody PasswordResetRequest request) {
+  public ResponseEntity<Void> requestPasswordReset(
+      @Valid @RequestBody PasswordResetRequest request) {
     authService.requestPasswordReset(request);
     return ResponseEntity.accepted().build();
   }

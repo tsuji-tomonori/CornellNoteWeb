@@ -24,10 +24,6 @@ public class NotebookService {
 
   private NotebookResponse toResponse(Notebook notebook) {
     return new NotebookResponse(
-        notebook.getId(),
-        notebook.getName(),
-        notebook.getCreatedAt(),
-        notebook.getUpdatedAt()
-    );
+        notebook.getId(), notebook.getName(), notebook.getCreatedAt(), notebook.getUpdatedAt());
   }
 }

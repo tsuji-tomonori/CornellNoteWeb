@@ -10,8 +10,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "tags")
 public class Tag {
-  @Id
-  private UUID id;
+  @Id private UUID id;
 
   @Column(name = "user_id", nullable = false)
   private UUID userId;
@@ -25,8 +24,7 @@ public class Tag {
   @Column(name = "updated_at", nullable = false)
   private Instant updatedAt;
 
-  protected Tag() {
-  }
+  protected Tag() {}
 
   public Tag(UUID id, UUID userId, String name, Instant createdAt, Instant updatedAt) {
     this.id = id;

@@ -10,8 +10,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "users")
 public class UserAccount {
-  @Id
-  private UUID id;
+  @Id private UUID id;
 
   @Column(nullable = false)
   private String email;
@@ -31,11 +30,16 @@ public class UserAccount {
   @Column(name = "deleted_at")
   private Instant deletedAt;
 
-  protected UserAccount() {
-  }
+  protected UserAccount() {}
 
-  public UserAccount(UUID id, String email, String authProvider, String status, Instant createdAt,
-      Instant updatedAt, Instant deletedAt) {
+  public UserAccount(
+      UUID id,
+      String email,
+      String authProvider,
+      String status,
+      Instant createdAt,
+      Instant updatedAt,
+      Instant deletedAt) {
     this.id = id;
     this.email = email;
     this.authProvider = authProvider;
