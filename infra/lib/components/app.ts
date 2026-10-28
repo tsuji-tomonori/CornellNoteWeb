@@ -61,10 +61,24 @@ export class AppComponent extends Construct {
       })
     );
 
+    const apiLogGroupArn = cdk.Stack.of(this).formatArn({
+      service: "logs",
+      resource: "log-group",
+      resourceName: apiLogGroup.logGroupName,
+      arnFormat: cdk.ArnFormat.COLON_RESOURCE_NAME
+    });
+
     apiRole.addToPolicy(
       new iam.PolicyStatement({
-        actions: ["logs:CreateLogStream", "logs:PutLogEvents", "logs:DescribeLogStreams"],
-        resources: [apiLogGroup.logGroupArn, `${apiLogGroup.logGroupArn}:log-stream:*`]
+        actions: ["logs:DescribeLogStreams"],
+        resources: [apiLogGroupArn]
+      })
+    );
+
+    apiRole.addToPolicy(
+      new iam.PolicyStatement({
+        actions: ["logs:CreateLogStream", "logs:PutLogEvents"],
+        resources: [`${apiLogGroupArn}:log-stream:*`]
       })
     );
 
@@ -106,10 +120,24 @@ export class AppComponent extends Construct {
       })
     );
 
+    const workerLogGroupArn = cdk.Stack.of(this).formatArn({
+      service: "logs",
+      resource: "log-group",
+      resourceName: workerLogGroup.logGroupName,
+      arnFormat: cdk.ArnFormat.COLON_RESOURCE_NAME
+    });
+
     workerRole.addToPolicy(
       new iam.PolicyStatement({
-        actions: ["logs:CreateLogStream", "logs:PutLogEvents", "logs:DescribeLogStreams"],
-        resources: [workerLogGroup.logGroupArn, `${workerLogGroup.logGroupArn}:log-stream:*`]
+        actions: ["logs:DescribeLogStreams"],
+        resources: [workerLogGroupArn]
+      })
+    );
+
+    workerRole.addToPolicy(
+      new iam.PolicyStatement({
+        actions: ["logs:CreateLogStream", "logs:PutLogEvents"],
+        resources: [`${workerLogGroupArn}:log-stream:*`]
       })
     );
 
